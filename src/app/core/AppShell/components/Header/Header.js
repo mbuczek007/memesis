@@ -4,10 +4,10 @@ import AppDrawer from '../AppDrawer/AppDrawer';
 const Header = () => {
   return (
     <>
-      <div>App Bar</div>
+      <div>MeMesis</div>
       <AppDrawer />
     </>
-  )
-}
+  );
+};
 
 export default Header;

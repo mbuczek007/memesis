@@ -1,12 +1,36 @@
 import React from 'react';
-import AppShell from '../../core/AppShell/AppShell';
+import { Link } from 'react-router-dom';
+import FacebookLoginButton from '../../shared/FacebookLoginButton/FacebookLoginButton';
+import PageTitle from '../../shared/PageTitle/PageTitle';
+import { useAuthContext } from '../../store/reducers/auth';
 
 const MainPage = () => {
+  const { user, logIn, logOut } = useAuthContext();
+
+  console.log(user);
+
   return (
-    <AppShell>
+    <>
+      <PageTitle title='Główna' />
       Main Page
-    </AppShell>
-  )
+      <ul>
+        <li>
+          <Link to='/view/21'>Item 21</Link>
+        </li>
+        <li>
+          <Link to='/view/22'>Item 22</Link>
+        </li>
+        <li>
+          <Link to='/view/23'>Item 23</Link>
+        </li>
+      </ul>
+      {user.token ? (
+        <button onClick={logOut}>Logout</button>
+      ) : (
+        <FacebookLoginButton onHandleClick={logIn} />
+      )}
+    </>
+  );
 };
 
 export default MainPage;
