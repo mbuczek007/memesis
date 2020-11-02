@@ -1,4 +1,4 @@
-import React, { useReducer, useMemo, useContext } from 'react';
+import React, { useReducer, useMemo, useContext, useEffect } from 'react';
 
 const initialState = {
   token: null,
@@ -69,6 +69,32 @@ export const AuthContextProvider = ({ children }) => {
 
   const value = useMemo(() => ({ state, dispatch }), [state]);
 
+  useEffect(() => {
+    (function (d, s, id) {
+      var js,
+        fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s);
+      js.id = id;
+      js.src = '//connect.facebook.net/en_US/sdk.js';
+      fjs.parentNode.insertBefore(js, fjs);
+    })(document, 'script', 'facebook-jssdk');
+
+    window.fbAsyncInit = function () {
+      window.FB.init({
+        appId: '358432648571666',
+        cookie: false,
+        xfbml: true,
+        version: 'v2.7',
+      });
+
+      window.FB.getLoginStatus(function (response) {
+        console.log(response);
+        setAutState(dispatch, response);
+      });
+    };
+  }, []);
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
@@ -96,12 +122,5 @@ export const useAuthContext = () => {
     });
   };
 
-  const authCheck = () => {
-    window.FB.getLoginStatus(function (response) {
-      console.log(response);
-      setAutState(dispatch, response);
-    });
-  };
-
-  return { user, authCheck, logIn, logOut };
+  return { user, logIn, logOut };
 };

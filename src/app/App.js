@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { HelmetProvider } from 'react-helmet-async';
@@ -8,8 +8,6 @@ import AddNew from './features/AddNew/AddNew';
 import ViewItem from './features/ViewItem/ViewItem';
 import NotFound from './features/NotFound/NotFound';
 import AppShell from './core/AppShell/AppShell';
-import { useAuthContext } from './store/reducers/auth';
-import { facebookAuth } from './utils/facebookAuth';
 
 const theme = {
   palette: {
@@ -24,12 +22,6 @@ const theme = {
 };
 
 const App = () => {
-  const { authCheck } = useAuthContext();
-
-  useEffect(() => {
-    facebookAuth(authCheck);
-  }, [authCheck]);
-
   return (
     <ThemeProvider theme={theme}>
       <HelmetProvider>
