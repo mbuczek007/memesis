@@ -5,6 +5,7 @@ const initialState = {
   userId: null,
   name: null,
   image: null,
+  loading: true,
 };
 
 export const AuthContext = React.createContext(initialState);
@@ -46,11 +47,18 @@ const authLogin = (state, action) => {
     userId: action.payload.userId,
     name: action.payload.name,
     image: action.payload.image,
+    loading: false,
   });
 };
 
 const authLogout = (state) => {
-  return updateObject(state, initialState);
+  return updateObject(state, {
+    token: null,
+    userId: null,
+    name: null,
+    image: null,
+    loading: false,
+  });
 };
 
 const reducer = (state, action) => {
@@ -70,16 +78,6 @@ export const AuthContextProvider = ({ children }) => {
   const value = useMemo(() => ({ state, dispatch }), [state]);
 
   useEffect(() => {
-    (function (d, s, id) {
-      var js,
-        fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s);
-      js.id = id;
-      js.src = '//connect.facebook.net/en_US/sdk.js';
-      fjs.parentNode.insertBefore(js, fjs);
-    })(document, 'script', 'facebook-jssdk');
-
     window.fbAsyncInit = function () {
       window.FB.init({
         appId: '358432648571666',
@@ -93,6 +91,16 @@ export const AuthContextProvider = ({ children }) => {
         setAutState(dispatch, response);
       });
     };
+
+    (function (d, s, id) {
+      var js,
+        fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s);
+      js.id = id;
+      js.src = '//connect.facebook.net/en_US/sdk.js';
+      fjs.parentNode.insertBefore(js, fjs);
+    })(document, 'script', 'facebook-jssdk');
   }, []);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

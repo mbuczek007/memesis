@@ -24,10 +24,14 @@ const MainPage = () => {
           <Link to='/view/23'>Item 23</Link>
         </li>
       </ul>
-      {user.token ? (
-        <button onClick={logOut}>Logout</button>
-      ) : (
-        <FacebookLoginButton onHandleClick={logIn} />
+      {!user.loading && (
+        <>
+          {user.token ? (
+            <button onClick={logOut}>Logout</button>
+          ) : (
+            <FacebookLoginButton onHandleClick={logIn} />
+          )}
+        </>
       )}
     </>
   );
