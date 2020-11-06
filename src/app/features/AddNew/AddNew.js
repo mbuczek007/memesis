@@ -1,12 +1,12 @@
-import React from 'react';
-import PageTitle from '../../shared/PageTitle/PageTitle';
+import React from "react";
+import PageTitle from "../../shared/PageTitle/PageTitle";
 
 const AddNew = () => {
   return (
-    <>
-      <PageTitle title='Dodaj' />
+    <div>
+      <PageTitle title="Dodaj" />
       Add New Page
-    </>
+    </div>
   );
 };
 

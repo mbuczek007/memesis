@@ -1,12 +1,12 @@
-import React from 'react';
-import PageTitle from '../../shared/PageTitle/PageTitle';
+import React from "react";
+import PageTitle from "../../shared/PageTitle/PageTitle";
 
 const Pending = () => {
   return (
-    <>
-      <PageTitle title='Poczekalnia' />
+    <div>
+      <PageTitle title="Poczekalnia" />
       Pending Page
-    </>
+    </div>
   );
 };
 

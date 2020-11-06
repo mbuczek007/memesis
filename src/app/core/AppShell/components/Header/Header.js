@@ -1,12 +1,12 @@
-import React from 'react';
-import AppDrawer from '../AppDrawer/AppDrawer';
+import React from "react";
+import AppDrawer from "../AppDrawer/AppDrawer";
 
 const Header = () => {
   return (
-    <>
-      <div>MeMesis</div>
+    <header>
+      <h1>MeMesis</h1>
       <AppDrawer />
-    </>
+    </header>
   );
 };
 
