@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { HelmetProvider } from 'react-helmet-async';
@@ -8,6 +8,8 @@ import AddNew from './features/AddNew/AddNew';
 import ViewItem from './features/ViewItem/ViewItem';
 import NotFound from './features/NotFound/NotFound';
 import AppShell from './core/AppShell/AppShell';
+import { useDispatch, useSelector } from 'react-redux';
+import { checkAuth } from './store/reducers/authSlice';
 
 const theme = {
   palette: {
@@ -22,6 +24,17 @@ const theme = {
 };
 
 const App = () => {
+  const authChecking = useSelector((state) => state.auth.loading);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, []);
+
+  if (authChecking) {
+    return null;
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <HelmetProvider>

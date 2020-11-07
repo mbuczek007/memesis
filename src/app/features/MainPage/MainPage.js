@@ -1,37 +1,33 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import FacebookLoginButton from "../../shared/FacebookLoginButton/FacebookLoginButton";
-import PageTitle from "../../shared/PageTitle/PageTitle";
-import { useAuthContext } from "../../store/reducers/auth";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import FacebookLoginButton from '../../shared/FacebookLoginButton/FacebookLoginButton';
+import PageTitle from '../../shared/PageTitle/PageTitle';
+import { logIn, logOut } from '../../store/reducers/authSlice';
 
 const MainPage = () => {
-  const { user, logIn, logOut } = useAuthContext();
-
-  console.log(user);
+  const userToken = useSelector((state) => state.auth.token);
+  const dispatch = useDispatch();
 
   return (
     <div>
-      <PageTitle title="Główna" />
+      <PageTitle title='Główna' />
       Main Page
       <ul>
         <li>
-          <Link to="/view/21">Item 21</Link>
+          <Link to='/view/21'>Item 21</Link>
         </li>
         <li>
-          <Link to="/view/22">Item 22</Link>
+          <Link to='/view/22'>Item 22</Link>
         </li>
         <li>
-          <Link to="/view/23">Item 23</Link>
+          <Link to='/view/23'>Item 23</Link>
         </li>
       </ul>
-      {!user.loading && (
-        <div>
-          {user.token ? (
-            <button onClick={logOut}>Logout</button>
-          ) : (
-            <FacebookLoginButton onHandleClick={logIn} />
-          )}
-        </div>
+      {userToken ? (
+        <button onClick={() => dispatch(logOut())}>Logout</button>
+      ) : (
+        <FacebookLoginButton onHandleClick={() => dispatch(logIn())} />
       )}
     </div>
   );
