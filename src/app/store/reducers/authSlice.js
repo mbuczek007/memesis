@@ -120,10 +120,7 @@ const auth = (response) => (dispatch) => {
 
 export const logOut = () => (dispatch) => {
   dispatch(logOutAction());
-
-  window.FB.logout((response) => {
-    console.log(response);
-  });
+  window.FB.logout();
 };
 
 export const logIn = () => (dispatch) => {

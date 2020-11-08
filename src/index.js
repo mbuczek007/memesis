@@ -19,4 +19,4 @@ const app = (
   </React.StrictMode>
 );
 
-ReactDOM.render(app, document.getElementById('app'));
+ReactDOM.render(app, document.getElementById('memesis-app'));

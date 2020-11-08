@@ -8,8 +8,10 @@ import AddNew from './features/AddNew/AddNew';
 import ViewItem from './features/ViewItem/ViewItem';
 import NotFound from './features/NotFound/NotFound';
 import AppShell from './core/AppShell/AppShell';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { checkAuth } from './store/reducers/authSlice';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import useAuth from './hooks/useAuth';
 
 const theme = {
   palette: {
@@ -24,20 +26,21 @@ const theme = {
 };
 
 const App = () => {
-  const authChecking = useSelector((state) => state.auth.loading);
+  const { loading } = useAuth();
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(checkAuth());
-  }, []);
+  }, [dispatch]);
 
-  if (authChecking) {
+  if (loading) {
     return null;
   }
 
   return (
     <ThemeProvider theme={theme}>
       <HelmetProvider>
+        <CssBaseline />
         <AppShell>
           <Switch>
             <Route path='/' exact>
