@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CardItem = () => {
+const CardItem = ({ item }) => {
   const classes = useStyles();
   let history = useHistory();
 
@@ -38,17 +38,17 @@ const CardItem = () => {
           gutterBottom
           variant='h5'
           component='h2'
-          onClick={() => history.push('/view/21')}
+          onClick={() => history.push(`/view/${item.id}`)}
           className={classes.cardTitle}
         >
-          Heading
+          {item.title}
         </Typography>
       </CardContent>
       <img
-        src='https://source.unsplash.com/random'
+        src={item.imageUrl}
         alt=''
         className={classes.cardImage}
-        onClick={() => history.push('/view/21')}
+        onClick={() => history.push(`/view/${item.id}`)}
       />
       <CardActions>
         <Icon style={{ color: green[500] }}>add_circle</Icon>
