@@ -7,6 +7,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { green } from '@material-ui/core/colors';
 import Icon from '@material-ui/core/Icon';
 import { useHistory } from 'react-router-dom';
+import clsx from 'clsx';
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -17,19 +18,29 @@ const useStyles = makeStyles((theme) => ({
   cardImage: {
     width: '100%',
     height: 'auto',
-    cursor: 'pointer',
   },
   cardContent: {
     flexGrow: 1,
   },
-  cardTitle: {
+  cardLinked: {
     cursor: 'pointer',
   },
 }));
 
-const CardItem = ({ item }) => {
+const CardItem = ({ item, linked }) => {
   const classes = useStyles();
   let history = useHistory();
+
+  const viewItemAction = (itemId, item) => {
+    if (!linked) {
+      return null;
+    }
+
+    history.push({
+      pathname: `/view/${itemId}`,
+      item,
+    });
+  };
 
   return (
     <Card className={classes.card}>
@@ -38,8 +49,8 @@ const CardItem = ({ item }) => {
           gutterBottom
           variant='h5'
           component='h2'
-          onClick={() => history.push(`/view/${item.id}`)}
-          className={classes.cardTitle}
+          onClick={() => viewItemAction(item.id, item)}
+          className={clsx(classes.cardTitle, linked && classes.cardLinked)}
         >
           {item.title}
         </Typography>
@@ -47,8 +58,8 @@ const CardItem = ({ item }) => {
       <img
         src={item.imageUrl}
         alt=''
-        className={classes.cardImage}
-        onClick={() => history.push(`/view/${item.id}`)}
+        className={clsx(classes.cardImage, linked && classes.cardLinked)}
+        onClick={() => viewItemAction(item.id, item)}
       />
       <CardActions>
         <Icon style={{ color: green[500] }}>add_circle</Icon>

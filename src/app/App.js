@@ -2,8 +2,7 @@ import React, { useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { HelmetProvider } from 'react-helmet-async';
-import MainPage from './features/MainPage/MainPage';
-import Pending from './features/Pending/Pending';
+import ItemsLoop from './features/ItemsLoop/ItemsLoop';
 import AddNew from './features/AddNew/AddNew';
 import ViewItem from './features/ViewItem/ViewItem';
 import NotFound from './features/NotFound/NotFound';
@@ -44,10 +43,10 @@ const App = () => {
         <AppShell>
           <Switch>
             <Route path='/' exact>
-              <MainPage />
+              <ItemsLoop mode='' />
             </Route>
             <Route path='/pending'>
-              <Pending />
+              <ItemsLoop mode='pending' />
             </Route>
             <Route path='/add'>
               <AddNew />
