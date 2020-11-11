@@ -6,6 +6,8 @@ import ItemsDataService from '../../../services/items.service';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
+import ReactPaginate from 'react-paginate';
+import { useHistory, useParams } from 'react-router-dom';
 
 const useStyles = makeStyles(() => ({
   loaderClass: {
@@ -18,7 +20,18 @@ const useStyles = makeStyles(() => ({
 
 const ItemsLoop = ({ mode }) => {
   const classes = useStyles();
+  let history = useHistory();
+
+  const { pageId } = useParams();
+  const pageIdInt = parseInt(pageId);
+
   const [items, setItems] = useState(null);
+  const [pagination, setPagination] = useState({
+    offset: pageId ? (pageIdInt - 1) * 2 : 0,
+    perPage: 2,
+    currentPage: pageIdInt ? pageIdInt : 1,
+    pageCount: null,
+  });
 
   useEffect(() => {
     const onDataChange = (items) => {
@@ -35,7 +48,16 @@ const ItemsLoop = ({ mode }) => {
         });
       });
 
-      setItems(itemsArray.reverse());
+      setPagination({
+        ...pagination,
+        pageCount: Math.ceil(itemsArray.length / pagination.perPage),
+      });
+
+      setItems(
+        itemsArray
+          .reverse()
+          .slice(pagination.offset, pagination.offset + pagination.perPage)
+      );
     };
 
     if (mode === 'pending') {
@@ -43,7 +65,28 @@ const ItemsLoop = ({ mode }) => {
     } else {
       ItemsDataService.getAllAccepted().on('value', onDataChange);
     }
-  }, [setItems, mode]);
+  }, [mode, pagination.currentPage, pagination.offset]);
+
+  const handlePageClick = (e) => {
+    window.scrollTo(0, 0);
+    const selectedPage = e.selected;
+
+    if (mode) {
+      history.push({
+        pathname: `/${mode}/${selectedPage + 1}`,
+      });
+    } else {
+      history.push({
+        pathname: `/page/${selectedPage + 1}`,
+      });
+    }
+
+    setPagination({
+      ...pagination,
+      currentPage: selectedPage,
+      offset: selectedPage * pagination.perPage,
+    });
+  };
 
   if (!items) {
     return (
@@ -70,6 +113,22 @@ const ItemsLoop = ({ mode }) => {
           <CardItem key={item.id} item={item} linked={true} />
         ))
       )}
+
+      <ReactPaginate
+        previousLabel={'prev'}
+        nextLabel={'next'}
+        breakLabel={'...'}
+        breakClassName={'break-me'}
+        pageCount={pagination.pageCount}
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={5}
+        onPageChange={handlePageClick}
+        containerClassName={'pagination'}
+        subContainerClassName={'pages pagination'}
+        activeClassName={'active'}
+        forcePage={pageIdInt ? pageIdInt - 1 : 0}
+        containerClassName='MuiPagination-ul'
+      />
     </Grid>
   );
 };

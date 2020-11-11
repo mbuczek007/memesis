@@ -42,10 +42,13 @@ const App = () => {
         <CssBaseline />
         <AppShell>
           <Switch>
-            <Route path='/' exact>
+            <Route key='home-mode' path='/' exact>
               <ItemsLoop mode='' />
             </Route>
-            <Route path='/pending'>
+            <Route key='home-mode-page' path='/page/:pageId?'>
+              <ItemsLoop mode='' />
+            </Route>
+            <Route key='pending-mode' path='/pending/:pageId?'>
               <ItemsLoop mode='pending' />
             </Route>
             <Route path='/add'>
