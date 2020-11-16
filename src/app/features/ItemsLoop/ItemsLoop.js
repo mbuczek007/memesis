@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import PageTitle from '../../shared/PageTitle/PageTitle';
 import Grid from '@material-ui/core/Grid';
-import CardItem from '../CardItem/CardItem';
-import ItemsDataService from '../../../services/items.service';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { makeStyles } from '@material-ui/core/styles';
+import ItemsDataService from '../../../services/items.service';
 import Typography from '@material-ui/core/Typography';
+import CardItem from '../CardItem/CardItem';
 import ReactPaginate from 'react-paginate';
 import { useHistory, useParams } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(() => ({
   loaderClass: {

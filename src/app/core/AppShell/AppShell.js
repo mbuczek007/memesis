@@ -22,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
 const AppShell = (props) => {
   const { children } = props;
   const classes = useStyles();
+
   return (
     <div className={classes.root}>
       <Header />

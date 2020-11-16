@@ -1,10 +1,10 @@
 import React from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import { makeStyles } from '@material-ui/core/styles';
-import { Link as RouterLink } from 'react-router-dom';
 import UserMenu from '../../../../features/UserMenu/UserMenu';
 
 const useStyles = makeStyles((theme) => ({
@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Header = () => {
   const classes = useStyles();
+
   return (
     <AppBar
       position='sticky'
@@ -78,7 +79,6 @@ const Header = () => {
             Dodaj
           </Link>
         </nav>
-
         <UserMenu />
       </Toolbar>
     </AppBar>

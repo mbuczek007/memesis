@@ -2,15 +2,15 @@ import React, { useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { HelmetProvider } from 'react-helmet-async';
+import AppShell from './core/AppShell/AppShell';
 import ItemsLoop from './features/ItemsLoop/ItemsLoop';
 import AddNew from './features/AddNew/AddNew';
 import ViewItem from './features/ViewItem/ViewItem';
 import NotFound from './features/NotFound/NotFound';
-import AppShell from './core/AppShell/AppShell';
 import { useDispatch } from 'react-redux';
 import { checkAuth } from './store/reducers/authSlice';
-import CssBaseline from '@material-ui/core/CssBaseline';
 import useAuth from './hooks/useAuth';
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 const theme = {
   palette: {
