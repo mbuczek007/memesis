@@ -1,79 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import PageTitle from '../../shared/PageTitle/PageTitle';
 import Grid from '@material-ui/core/Grid';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import ItemsDataService from '../../../services/items.service';
-import Typography from '@material-ui/core/Typography';
 import CardItem from '../CardItem/CardItem';
 import ReactPaginate from 'react-paginate';
 import { useHistory, useParams } from 'react-router-dom';
-import { makeStyles } from '@material-ui/core/styles';
+import api from '../../../api';
+import NotFound from '../NotFound/NotFound';
+import styled from 'styled-components';
+import Paper from '@material-ui/core/Paper';
 
-const useStyles = makeStyles(() => ({
-  loaderClass: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-  },
-}));
+const itemsPerPage = 3;
 
 const ItemsLoop = ({ mode }) => {
-  const classes = useStyles();
   let history = useHistory();
-
   const { pageId } = useParams();
   const pageIdInt = parseInt(pageId);
+  const [notFound, setNotFound] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [items, setItems] = useState({});
 
-  const [items, setItems] = useState(null);
   const [pagination, setPagination] = useState({
-    offset: pageId ? (pageIdInt - 1) * 2 : 0,
-    perPage: 2,
+    offset: pageId ? (pageIdInt - 1) * itemsPerPage : 0,
+    perPage: itemsPerPage,
     currentPage: pageIdInt ? pageIdInt : 1,
-    pageCount: null,
   });
 
   useEffect(() => {
-    const onDataChange = (items) => {
-      let itemsArray = [];
+    window.scrollTo(0, 0);
+    const fetchItems = async () => {
+      setIsLoading(true);
 
-      items.forEach((item) => {
-        let key = item.key;
-        let data = item.val();
-        itemsArray.push({
-          id: key,
-          title: data.title,
-          imageUrl: data.imageUrl,
-          createDate: data.createDate,
+      await api
+        .getItems(mode, pagination.perPage, pagination.offset)
+        .then((items) => {
+          if (items.data.items.docs.length === 0) {
+            setNotFound(true);
+          } else {
+            setItems(items.data.items);
+          }
+
+          setIsLoading(false);
+        })
+        .catch(() => {
+          setNotFound(true);
         });
-      });
-
-      setPagination({
-        ...pagination,
-        pageCount: Math.ceil(itemsArray.length / pagination.perPage),
-      });
-
-      setItems(
-        itemsArray
-          .reverse()
-          .slice(pagination.offset, pagination.offset + pagination.perPage)
-      );
     };
 
-    if (mode === 'pending') {
-      ItemsDataService.getAllPending().on('value', onDataChange);
-    } else {
-      ItemsDataService.getAllAccepted().on('value', onDataChange);
-    }
-  }, [mode, pagination.currentPage, pagination.offset]);
+    fetchItems();
+  }, [mode, pagination.perPage, pagination.offset]);
 
   const handlePageClick = (e) => {
-    window.scrollTo(0, 0);
     const selectedPage = e.selected;
 
-    if (mode) {
+    if (mode === 'pending') {
       history.push({
-        pathname: `/${mode}/${selectedPage + 1}`,
+        pathname: `/pending/${selectedPage + 1}`,
       });
     } else {
       history.push({
@@ -88,49 +69,114 @@ const ItemsLoop = ({ mode }) => {
     });
   };
 
-  if (!items) {
+  const renderItemsSkeleton = () => {
+    const skeletonItems = 2;
+    let skElems = [];
+
+    for (var i = 0; i < skeletonItems; i++) {
+      skElems.push(
+        <CardItem key={i} item={null} linked={false} loading={true} />
+      );
+    }
+
     return (
-      <div className={classes.loaderClass}>
-        <CircularProgress color='secondary' />
-      </div>
+      <>
+        <PageTitle title='Ładowanie...' />
+        {skElems}
+      </>
     );
+  };
+
+  if (notFound) {
+    return <NotFound />;
   }
 
   return (
     <Grid item xs={12} sm={12} md={12}>
-      <PageTitle title={mode !== 'pending' ? 'Główna' : 'Poczekalnia'} />
-      {items.length === 0 ? (
-        <Typography
-          className={classes.centerClass}
-          gutterBottom
-          variant='h5'
-          component='h2'
-        >
-          Nie znaleziono rekordów
-        </Typography>
+      {isLoading ? (
+        renderItemsSkeleton()
       ) : (
-        items.map((item) => (
-          <CardItem key={item.id} item={item} linked={true} />
-        ))
+        <>
+          <PageTitle title={mode !== 'pending' ? 'Główna' : 'Poczekalnia'} />
+          {items.docs.map((item) => (
+            <CardItem key={item.id} item={item} linked={true} loading={false} />
+          ))}
+          <StyledReactPaginate>
+            <ReactPaginate
+              previousLabel={'wcześniejsza'}
+              nextLabel={'następna'}
+              breakLabel={'...'}
+              breakClassName={'break-me'}
+              pageCount={items.totalPages}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={2}
+              onPageChange={handlePageClick}
+              containerClassName={'pagination'}
+              subContainerClassName={'pages pagination'}
+              activeClassName={'active'}
+              forcePage={pageIdInt ? pageIdInt - 1 : 0}
+            />
+          </StyledReactPaginate>
+        </>
       )}
-
-      <ReactPaginate
-        previousLabel={'prev'}
-        nextLabel={'next'}
-        breakLabel={'...'}
-        breakClassName={'break-me'}
-        pageCount={pagination.pageCount}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={5}
-        onPageChange={handlePageClick}
-        containerClassName={'pagination'}
-        subContainerClassName={'pages pagination'}
-        activeClassName={'active'}
-        forcePage={pageIdInt ? pageIdInt - 1 : 0}
-        containerClassName='MuiPagination-ul'
-      />
     </Grid>
   );
 };
+
+const StyledReactPaginate = styled(Paper)`
+  padding: 1rem;
+  text-align: center;
+
+  ul,
+  li {
+    margin: 0;
+    list-style: none;
+    display: inline;
+    padding-left: 0px;
+  }
+
+  li {
+    margin: 0 4px;
+  }
+
+  .active,
+  .disabled {
+    a {
+      cursor: default;
+    }
+  }
+
+  .disabled {
+    opacity: 0.6;
+  }
+
+  .active a,
+  li:not(.disabled) a:hover {
+    color: #fdfdfd;
+    background-color: #1d1f20;
+    border: solid 1px #1d1f20;
+  }
+
+  .next,
+  .previous {
+    margin: 0 20px;
+  }
+
+  a {
+    border: solid 1px #d7d7d7;
+    border-radius: 0.2rem;
+    color: #7d7d7d;
+    text-decoration: none;
+    text-transform: uppercase;
+    display: inline-block;
+    text-align: center;
+    padding: 0.5rem 0.9rem;
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+    }
+  }
+`;
 
 export default ItemsLoop;

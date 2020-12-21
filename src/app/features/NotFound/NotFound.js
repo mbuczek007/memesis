@@ -5,10 +5,10 @@ import { Helmet } from 'react-helmet-async';
 const NotFound = () => (
   <>
     <Helmet>
-      <title>Error 404</title>
+      <title>Błąd 404</title>
     </Helmet>
-    <h2>404 - Not Found</h2>
-    <Link to='/'>Go Home</Link>
+    <h2>404 - Nie znaleziono strony</h2>
+    <Link to='/'>Powrót na stronę główną</Link>
   </>
 );
 

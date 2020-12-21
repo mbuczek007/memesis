@@ -4,85 +4,94 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
-import { makeStyles } from '@material-ui/core/styles';
 import UserMenu from '../../../../features/UserMenu/UserMenu';
+import styled from 'styled-components';
 
-const useStyles = makeStyles((theme) => ({
-  '@global': {
-    ul: {
-      margin: 0,
-      padding: 0,
-      listStyle: 'none',
-    },
+const headerLinks = [
+  {
+    id: 0,
+    path: '/',
+    name: 'Główna',
   },
-  appBar: {
-    borderBottom: `1px solid ${theme.palette.divider}`,
+  {
+    id: 1,
+    path: '/pending',
+    name: 'W kolejce',
   },
-  toolbar: {
-    flexWrap: 'wrap',
+  {
+    id: 2,
+    path: '/top',
+    name: 'Najlepsze',
   },
-  toolbarTitle: {
-    flexGrow: 1,
+  {
+    id: 3,
+    path: '/random',
+    name: 'Losowy',
   },
-  link: {
-    margin: theme.spacing(1, 1.5),
+  {
+    id: 4,
+    path: '/add',
+    name: 'Dodaj',
   },
-}));
+];
 
 const Header = () => {
-  const classes = useStyles();
-
   return (
-    <AppBar
-      position='sticky'
-      color='default'
-      elevation={0}
-      className={classes.appBar}
-    >
-      <Toolbar className={classes.toolbar}>
-        <Typography
-          variant='h6'
-          color='inherit'
-          noWrap
-          className={classes.toolbarTitle}
-        >
+    <StyledMuiAppBar position='sticky' color='default' elevation={0}>
+      <StyledMuiToolbar>
+        <StyledPageTitle variant='h6' color='inherit' noWrap>
           <Link component={RouterLink} to='/' color='inherit'>
-            MeMesis
+            Memesis
           </Link>
-        </Typography>
+        </StyledPageTitle>
         <nav>
-          <Link
-            component={RouterLink}
-            to='/'
-            variant='button'
-            color='textPrimary'
-            className={classes.link}
-          >
-            Główna
-          </Link>
-          <Link
-            component={RouterLink}
-            to='/pending'
-            variant='button'
-            color='textPrimary'
-            className={classes.link}
-          >
-            Poczekalnia
-          </Link>
-          <Link
-            component={RouterLink}
-            to='/add'
-            variant='button'
-            color='textPrimary'
-            className={classes.link}
-          >
-            Dodaj
-          </Link>
+          <ul>
+            {headerLinks.map((link) => (
+              <li key={link.id}>
+                <StyledLink
+                  component={RouterLink}
+                  to={link.path}
+                  variant='button'
+                  color='textPrimary'
+                >
+                  {link.name}
+                </StyledLink>
+              </li>
+            ))}
+          </ul>
         </nav>
         <UserMenu />
-      </Toolbar>
-    </AppBar>
+      </StyledMuiToolbar>
+    </StyledMuiAppBar>
   );
 };
+
+const StyledMuiAppBar = styled(AppBar)`
+  border-bottom: 1px solid ${({ theme }) => theme.palette.divider};
+
+  ul,
+  li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: inline-block;
+  }
+`;
+
+const StyledMuiToolbar = styled(Toolbar)`
+  flex-wrap: wrap;
+`;
+
+const StyledPageTitle = styled(Typography)`
+  flex-grow: 1;
+`;
+
+const StyledLink = styled(Link)`
+  margin: ${({ theme }) => theme.spacing(1)}px
+    ${({ theme }) => theme.spacing(1.5)}px;
+`;
 
 export default Header;

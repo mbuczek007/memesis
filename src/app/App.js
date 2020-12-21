@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { ThemeProvider } from 'styled-components';
 import { HelmetProvider } from 'react-helmet-async';
 import AppShell from './core/AppShell/AppShell';
 import ItemsLoop from './features/ItemsLoop/ItemsLoop';
@@ -10,19 +9,7 @@ import NotFound from './features/NotFound/NotFound';
 import { useDispatch } from 'react-redux';
 import { checkAuth } from './store/reducers/authSlice';
 import useAuth from './hooks/useAuth';
-import CssBaseline from '@material-ui/core/CssBaseline';
-
-const theme = {
-  palette: {
-    primary: {
-      main: '#006bb5',
-    },
-    secondary: {
-      light: '#78809e',
-      main: '#dc004e',
-    },
-  },
-};
+import AppTheme from './theme/AppTheme';
 
 const App = () => {
   const { loading } = useAuth();
@@ -37,16 +24,15 @@ const App = () => {
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <AppTheme>
       <HelmetProvider>
-        <CssBaseline />
         <AppShell>
           <Switch>
             <Route key='home-mode' path='/' exact>
-              <ItemsLoop mode='' />
+              <ItemsLoop mode='accepted' />
             </Route>
             <Route key='home-mode-page' path='/page/:pageId?'>
-              <ItemsLoop mode='' />
+              <ItemsLoop mode='accepted' />
             </Route>
             <Route key='pending-mode' path='/pending/:pageId?'>
               <ItemsLoop mode='pending' />
@@ -54,7 +40,7 @@ const App = () => {
             <Route path='/add'>
               <AddNew />
             </Route>
-            <Route path='/view/:itemId'>
+            <Route path='/:itemId'>
               <ViewItem />
             </Route>
             <Route>
@@ -63,7 +49,7 @@ const App = () => {
           </Switch>
         </AppShell>
       </HelmetProvider>
-    </ThemeProvider>
+    </AppTheme>
   );
 };
 

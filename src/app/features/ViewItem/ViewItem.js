@@ -1,66 +1,63 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import PageTitle from '../../shared/PageTitle/PageTitle';
 import NotFound from '../NotFound/NotFound';
 import Grid from '@material-ui/core/Grid';
-import ItemsDataService from '../../../services/items.service';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import { makeStyles } from '@material-ui/core/styles';
 import CardItem from '../CardItem/CardItem';
-
-const useStyles = makeStyles(() => ({
-  loaderClass: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-  },
-}));
+import api from '../../../api';
+import styled from 'styled-components';
 
 const ViewItem = () => {
-  const classes = useStyles();
   let { itemId } = useParams();
-  const location = useLocation();
   const [vievedItem, setVievedItem] = useState({});
   const [notFound, setNotFound] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const onDataChange = (item) => {
-      const data = item.val();
+    window.scrollTo(0, 0);
 
-      if (!data) {
-        setNotFound(true);
-      } else {
-        setVievedItem({ ...vievedItem, data: data[itemId] });
-      }
+    const getItem = async () => {
+      await api
+        .getItemById(itemId)
+        .then((item) => {
+          if (!item) {
+            setNotFound(true);
+          } else {
+            setVievedItem({ data: item.data.data });
+          }
+          setIsLoading(false);
+        })
+        .catch(() => {
+          setNotFound(true);
+        });
     };
 
-    if (!location.item) {
-      ItemsDataService.getSingleItem(itemId).on('value', onDataChange);
-    } else {
-      setVievedItem({ ...vievedItem, data: location.item });
-      window.scrollTo(0, 0);
-    }
-  }, [itemId, location.item]);
+    getItem();
+  }, [itemId]);
 
   if (notFound) {
     return <NotFound />;
   }
 
-  if (Object.keys(vievedItem).length === 0) {
-    return (
-      <div className={classes.loaderClass}>
-        <CircularProgress color='secondary' />
-      </div>
-    );
-  }
-
   return (
-    <Grid item xs={12} sm={12} md={12}>
-      <PageTitle title={vievedItem.data.title} />
-      <CardItem item={vievedItem.data} linked={false} />
-    </Grid>
+    <StyledGridItem item xs={12} sm={12} md={12}>
+      {isLoading ? (
+        <>
+          <PageTitle title='Ładowanie...' />
+          <CardItem item={null} linked={false} loading={true} />
+        </>
+      ) : (
+        <>
+          <PageTitle title={vievedItem.data.title} />
+          <CardItem item={vievedItem.data} linked={false} loading={false} />
+        </>
+      )}
+    </StyledGridItem>
   );
 };
+
+const StyledGridItem = styled(Grid)`
+  margin-bottom: ${({ theme }) => theme.spacing(4)}px;
+`;
 
 export default ViewItem;

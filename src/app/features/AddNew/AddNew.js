@@ -8,9 +8,9 @@ import TextField from '@material-ui/core/TextField';
 import Alert from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
 import { DebounceInput } from 'react-debounce-input';
-import ItemsDataService from '../../../services/items.service';
 import useAuth from '../../hooks/useAuth';
 import { inputChangeHandler, convertToArray } from '../../utils/utils';
+import db from '../../../firebase';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -25,6 +25,20 @@ const useStyles = makeStyles((theme) => ({
 
 const AddNew = () => {
   const initialControls = {
+    itemImageUrl: {
+      elementType: 'input',
+      elementConfig: {
+        type: 'url',
+        placeholder: 'Media Url',
+      },
+      value: '',
+      validation: {
+        required: true,
+        errorText: 'To nie jest url',
+      },
+      valid: false,
+      touched: false,
+    },
     itemTitle: {
       elementType: 'input',
       elementConfig: {
@@ -41,16 +55,34 @@ const AddNew = () => {
       valid: false,
       touched: false,
     },
-    itemImageUrl: {
+    itemSubtitle: {
       elementType: 'input',
       elementConfig: {
-        type: 'url',
-        placeholder: 'Adres URL do obrazka',
+        type: 'text',
+        placeholder: 'Podpis',
       },
       value: '',
       validation: {
-        required: true,
-        errorText: 'Błędny adres url',
+        required: false,
+        minLength: 3,
+        maxLength: 1000,
+        errorText: 'Tytuł powinien zawierać minimum 3 znaki',
+      },
+      valid: false,
+      touched: false,
+    },
+    itemSource: {
+      elementType: 'input',
+      elementConfig: {
+        type: 'text',
+        placeholder: 'Źródło',
+      },
+      value: '',
+      validation: {
+        required: false,
+        minLength: 0,
+        maxLength: 500,
+        errorText: 'Źródło jest za długie',
       },
       valid: false,
       touched: false,
@@ -75,19 +107,23 @@ const AddNew = () => {
     e.preventDefault();
 
     if (formElementsArray.every(checkFormValid)) {
-      let data = {
-        title: controls.itemTitle.value,
-        imageUrl: controls.itemImageUrl.value,
-        pending: true,
-        userId: user.userId,
-        userName: user.name,
-        createDate: new Date().getTime(),
-      };
-
       setStatusInfo({ ...statusInfo, loading: true });
 
-      ItemsDataService.create(data)
-        .then(() => {
+      db.collection('items')
+        .doc()
+        .set({
+          createDate: new Date().getTime(),
+          disableComments: false,
+          isPending: true,
+          isPrivate: false,
+          mediaUrl: controls.itemImageUrl.value,
+          source: controls.itemSource.value,
+          subtitle: controls.itemSubtitle.value,
+          title: controls.itemTitle.value,
+          titleColor: '#000',
+          userId: user.userId,
+        })
+        .then(function () {
           const updatedStatus = {
             ...statusInfo,
             type: 'success',
@@ -97,11 +133,11 @@ const AddNew = () => {
           setStatusInfo(updatedStatus);
           setControls(initialControls);
         })
-        .catch(() => {
+        .catch(function (error) {
           const updatedStatus = {
             ...statusInfo,
             type: 'error',
-            message: 'Wystąpił niespodziewany błąd spróbuj ponownie.',
+            message: error,
             loading: false,
           };
           setStatusInfo(updatedStatus);

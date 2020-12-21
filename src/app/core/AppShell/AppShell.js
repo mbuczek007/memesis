@@ -3,37 +3,34 @@ import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
-import { makeStyles } from '@material-ui/core/styles';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: '100vh',
-    position: 'relative',
-  },
-  mainContent: {
-    paddingTop: theme.spacing(8),
-    paddingBottom: theme.spacing(6),
-    maxWidth: 610,
-  },
-}));
+import styled from 'styled-components';
 
 const AppShell = (props) => {
   const { children } = props;
-  const classes = useStyles();
 
   return (
-    <div className={classes.root}>
+    <RootElem>
       <Header />
-      <Container component='main' className={classes.mainContent}>
-        <Grid container spacing={5}>
-          {children}
-        </Grid>
-      </Container>
+      <StyledMuiContainer component='main'>
+        <Grid container>{children}</Grid>
+      </StyledMuiContainer>
       <Footer />
-    </div>
+    </RootElem>
   );
 };
+
+const RootElem = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  background-color: #f3f3f3;
+`;
+
+const StyledMuiContainer = styled(Container)`
+  padding-top: ${({ theme }) => theme.spacing(8)}px;
+  padding-bottom: ${({ theme }) => theme.spacing(6)}px;
+  max-width: 750px;
+`;
 
 export default AppShell;

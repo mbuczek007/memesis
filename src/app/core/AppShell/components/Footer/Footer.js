@@ -1,24 +1,14 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
-import { makeStyles } from '@material-ui/core/styles';
 import { Link as RouterLink } from 'react-router-dom';
-
-const useStyles = makeStyles((theme) => ({
-  footer: {
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(6),
-    marginTop: 'auto',
-  },
-}));
+import styled from 'styled-components';
 
 const Footer = () => {
-  const classes = useStyles();
-
   return (
-    <footer className={classes.footer}>
+    <StyledFooter>
       <Typography variant='h6' align='center' gutterBottom>
-        MeMesis
+        Memesis
       </Typography>
       <Typography
         variant='subtitle1'
@@ -31,13 +21,18 @@ const Footer = () => {
       <Typography variant='body2' color='textSecondary' align='center'>
         {'Copyright © '}
         <Link component={RouterLink} to='/' color='inherit'>
-          MeMesis
+          Memesis
         </Link>{' '}
         {new Date().getFullYear()}
-        {'.'}
       </Typography>
-    </footer>
+    </StyledFooter>
   );
 };
+
+const StyledFooter = styled.footer`
+  background-color: ${({ theme }) => theme.palette.background.paper};
+  padding: ${({ theme }) => theme.spacing(6)}px;
+  margin-top: auto;
+`;
 
 export default Footer;
