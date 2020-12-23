@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://api.memesis.pl',
+  baseURL: process.env.REACT_APP_API_URL,
 });
 
 /* export const deleteItemById = (id) => api.delete(`/item/${id}`);

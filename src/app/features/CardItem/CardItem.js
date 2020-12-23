@@ -9,16 +9,11 @@ import IconButton from '@material-ui/core/IconButton';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
 import Skeleton from '@material-ui/lab/Skeleton';
-import {
-  LazyLoadImage,
-  trackWindowScroll,
-} from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/opacity.css';
 import moment from 'moment';
 import 'moment/locale/pl';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 
-const CardItem = ({ item, linked, loading, scrollPosition }) => {
+const CardItem = ({ item, linked, loading }) => {
   moment.locale('pl');
 
   return (
@@ -28,16 +23,7 @@ const CardItem = ({ item, linked, loading, scrollPosition }) => {
           <Skeleton variant='rect' height={400} animation='wave' />
         ) : (
           <CardLInk linked={linked} itemId={item.id}>
-            <LazyLoadImage
-              alt={item.title}
-              src={item.mediaUrl}
-              effect='opacity'
-              threshold={0}
-              placeholder={
-                <Skeleton variant='rect' height={400} animation='wave' />
-              }
-              scrollPosition={scrollPosition}
-            />
+            <img src={item.mediaUrl} alt={item.title} />
           </CardLInk>
         )}
         <StyledMuiCardContent>
@@ -222,4 +208,4 @@ const VotingSkeletonButtton = styled(Skeleton)`
   margin: 4px;
 `;
 
-export default trackWindowScroll(CardItem);
+export default CardItem;
