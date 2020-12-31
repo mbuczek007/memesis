@@ -8,7 +8,7 @@ import TextField from '@material-ui/core/TextField';
 import Alert from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
 import { DebounceInput } from 'react-debounce-input';
-import useAuth from '../../hooks/useAuth';
+import { useSelector } from 'react-redux';
 import { inputChangeHandler, convertToArray } from '../../utils/utils';
 import db from '../../../firebase';
 
@@ -89,7 +89,7 @@ const AddNew = () => {
     },
   };
   const classes = useStyles();
-  const { isLogIn, user } = useAuth();
+  const { isLoggedIn } = useSelector((state) => state.auth);
   const [controls, setControls] = useState(initialControls);
   const [statusInfo, setStatusInfo] = useState({
     type: null,
@@ -104,7 +104,7 @@ const AddNew = () => {
   };
 
   const submitHandler = (e) => {
-    e.preventDefault();
+    /*  e.preventDefault();
 
     if (formElementsArray.every(checkFormValid)) {
       setStatusInfo({ ...statusInfo, loading: true });
@@ -143,7 +143,7 @@ const AddNew = () => {
           setStatusInfo(updatedStatus);
           setControls(initialControls);
         });
-    }
+    } */
   };
 
   const form = formElementsArray.map((formElement) => {
@@ -188,7 +188,7 @@ const AddNew = () => {
   return (
     <Grid item xs={12} sm={12} md={12}>
       <PageTitle title='Dodaj' />
-      {!isLogIn ? (
+      {!isLoggedIn ? (
         <Typography
           variant='h5'
           align='center'

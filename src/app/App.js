@@ -6,22 +6,16 @@ import ItemsLoop from './features/ItemsLoop/ItemsLoop';
 import AddNew from './features/AddNew/AddNew';
 import ViewItem from './features/ViewItem/ViewItem';
 import NotFound from './features/NotFound/NotFound';
-import { useDispatch } from 'react-redux';
-import { checkAuth } from './store/reducers/authSlice';
-import useAuth from './hooks/useAuth';
 import AppTheme from './theme/AppTheme';
+import { checkAuth } from '../store/reducers/authSlice';
+import { useDispatch } from 'react-redux';
 
 const App = () => {
-  const { loading } = useAuth();
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
-
-  if (loading) {
-    return null;
-  }
 
   return (
     <AppTheme>

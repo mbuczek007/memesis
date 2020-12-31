@@ -4,7 +4,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
-import UserMenu from '../../../../features/UserMenu/UserMenu';
+import UserHeaderPanel from '../../../../features/User/UserHeaderPanel';
 import styled from 'styled-components';
 
 const headerLinks = [
@@ -60,7 +60,7 @@ const Header = () => {
             ))}
           </ul>
         </nav>
-        <UserMenu />
+        <UserHeaderPanel />
       </StyledMuiToolbar>
     </StyledMuiAppBar>
   );

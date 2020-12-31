@@ -4,10 +4,7 @@ const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL,
 });
 
-/* export const deleteItemById = (id) => api.delete(`/item/${id}`);
- */
 export const insertItem = (payload) => api.post(`/item`, payload);
-
 export const getItemById = (id) => api.get(`/item/${id}`);
 export const getItems = (mode, perPage, offset) =>
   api.get(`/items/${mode}/${perPage}/${offset}`);
@@ -18,8 +15,6 @@ const apis = {
   getItems,
   getItemsCount,
   getItemById,
-  /*   deleteItemById,
-  , */
 };
 
 export default apis;
