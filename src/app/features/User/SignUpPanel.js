@@ -1,37 +1,121 @@
-import React, { useState } from 'react';
-import { register } from '../../../store/reducers/authSlice';
+import React, { useState, useEffect } from 'react';
+import { register, login } from '../../../store/reducers/authSlice';
 import TextField from '@material-ui/core/TextField';
 import Alert from '@material-ui/lab/Alert';
 import { useDispatch, useSelector } from 'react-redux';
 import ButtonLoading from '../../shared/ButtonLoading/ButtonLoading';
-import { clearMessage } from '../../../store/reducers/messageSlice';
 import styled from 'styled-components';
 import PasswordInput from '../../shared/PasswordInput/PasswordInput';
 import Typography from '@material-ui/core/Typography';
+import { DebounceInput } from 'react-debounce-input';
+import AuthService from '../../../services/auth.service';
+import { checkValidity } from '../../utils/utils';
 
 const SignUpPanel = () => {
   const initialSignUpData = {
-    name: '',
-    email: '',
-    password: '',
-    loading: false,
+    name: {
+      value: '',
+      validationRules: {
+        required: true,
+        minLength: 2,
+        maxLength: 64,
+      },
+      errorText: 'Nazwa uzytkownika powinna mieć od 2 do 64 znaków.',
+      touched: false,
+      valid: false,
+    },
+    email: {
+      value: '',
+      validationRules: {
+        required: true,
+        isEmail: true,
+      },
+      errorText: 'Niepoprawy adres e-mail.',
+      touched: false,
+      valid: false,
+    },
+    password: {
+      value: '',
+      validationRules: {
+        required: true,
+        passwordCheck: true,
+      },
+      errorText:
+        'Hasło powinno mieć od 6 do 20 znaków, zawierać małą i duza literę oraz cyfrę.',
+      touched: false,
+      valid: false,
+    },
   };
 
   const dispatch = useDispatch();
   const { message } = useSelector((state) => state.message);
   const [signUpData, setSignUpData] = useState(initialSignUpData);
-  const [userCreatedSuccess, setUserCreatedSuccess] = useState(false);
+  const [formValidation, setFormValidation] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    checkFormValid();
+  }, [signUpData]);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    dispatch(register(signUpData.name, signUpData.email, signUpData.password))
-      .then(() => {
-        setUserCreatedSuccess(true);
-      })
-      .catch(() => {
-        setUserCreatedSuccess(false);
-      });
+    dispatch(
+      register(
+        signUpData.name.value,
+        signUpData.email.value,
+        signUpData.password.value
+      )
+    ).catch(() => {
+      setLoading(false);
+    });
+  };
+
+  const checkFormValid = () => {
+    let valid = true;
+
+    for (let i in signUpData) {
+      if (signUpData[i].valid === false) {
+        valid = false;
+        break;
+      }
+    }
+
+    if (valid) {
+      setFormValidation(true);
+    } else {
+      setFormValidation(false);
+    }
+  };
+
+  const handleChangeNameOrEmail = (value, mode) => {
+    AuthService.checkRegisterData(value).then(
+      () => {
+        setSignUpData({
+          ...signUpData,
+          [mode]: {
+            ...signUpData[mode],
+            value: value,
+            errorText: initialSignUpData[mode].errorText,
+            touched: true,
+            valid: checkValidity(value, signUpData[mode].validationRules),
+          },
+        });
+      },
+      (error) => {
+        setSignUpData({
+          ...signUpData,
+          [mode]: {
+            ...signUpData[mode],
+            value: value,
+            errorText: error.response.data.error,
+            touched: true,
+            valid: false,
+          },
+        });
+      }
+    );
   };
 
   return (
@@ -39,75 +123,114 @@ const SignUpPanel = () => {
       <Typography variant='h6' component='h2'>
         Rejestracja
       </Typography>
-      {userCreatedSuccess ? (
-        <>
-          <StyledAlert variant='outlined' severity='success'>
-            Rejestracja przebiegła pomyślnie.
-          </StyledAlert>
-        </>
-      ) : (
-        <>
-          {message && (
-            <StyledAlert variant='outlined' severity='error'>
-              {message}
-            </StyledAlert>
-          )}
-          <form onSubmit={handleFormSubmit}>
-            <TextField
-              variant='outlined'
-              required
-              fullWidth
-              margin='normal'
-              id='username'
-              label='Nazwa uzytkownika'
-              name='username'
-              autoComplete='name'
-              autoFocus
-              value={signUpData.name}
-              onChange={(e) => {
-                setSignUpData({
-                  ...signUpData,
-                  name: e.target.value,
-                });
-              }}
-            />
-            <TextField
-              variant='outlined'
-              required
-              fullWidth
-              margin='normal'
-              id='email'
-              label='Adres email'
-              name='email'
-              autoComplete='email'
-              value={signUpData.email}
-              onChange={(e) => {
-                setSignUpData({
-                  ...signUpData,
-                  email: e.target.value,
-                });
-              }}
-            />
-            <PasswordInput
-              id='signUpPassword'
-              onInputChange={(e) => {
-                setSignUpData({
-                  ...signUpData,
-                  password: e.target.value,
-                });
-              }}
-              passwordValue={signUpData.password}
-            />
-            <ButtonLoading loading={signUpData.loading} ctaText='Zarejestruj' />
-          </form>
-        </>
+      {message && (
+        <StyledAlert variant='outlined' severity='error'>
+          {message}
+        </StyledAlert>
       )}
+      <form onSubmit={handleFormSubmit}>
+        <StyledDebounceInput
+          debounceTimeout={500}
+          element={TextField}
+          variant='outlined'
+          fullWidth
+          type='text'
+          label='Nazwa uzytkownika'
+          value={signUpData.name.value}
+          onChange={(e) => {
+            handleChangeNameOrEmail(e.target.value, 'name');
+          }}
+          error={signUpData.name.touched && !signUpData.name.valid}
+          helperText={
+            signUpData.name.touched && !signUpData.name.valid
+              ? signUpData.name.errorText
+              : ''
+          }
+          isValid={signUpData.name.touched && signUpData.name.valid}
+          required={true}
+          multiline={false}
+          name='username'
+          autoComplete='name'
+          autoFocus
+          margin='normal'
+          id='username'
+        />
+
+        <StyledDebounceInput
+          debounceTimeout={500}
+          element={TextField}
+          variant='outlined'
+          fullWidth
+          type='email'
+          label='Adres e-mail'
+          value={signUpData.email.value}
+          onChange={(e) => {
+            handleChangeNameOrEmail(e.target.value, 'email');
+          }}
+          error={signUpData.email.touched && !signUpData.email.valid}
+          helperText={
+            signUpData.email.touched && !signUpData.email.valid
+              ? signUpData.email.errorText
+              : ''
+          }
+          isValid={signUpData.email.touched && signUpData.email.valid}
+          required={true}
+          multiline={false}
+          name='email'
+          autoComplete='email'
+          margin='normal'
+          id='email'
+        />
+        <PasswordInput
+          id='signUpPassword'
+          onInputChange={(e) => {
+            setSignUpData({
+              ...signUpData,
+              password: {
+                ...signUpData.password,
+                value: e.target.value,
+                errorText: signUpData.password.errorText,
+                touched: true,
+                valid: checkValidity(
+                  e.target.value,
+                  signUpData.password.validationRules
+                ),
+              },
+            });
+          }}
+          error={signUpData.password.touched && !signUpData.password.valid}
+          helperText={
+            signUpData.password.touched && !signUpData.password.valid
+              ? signUpData.password.errorText
+              : ''
+          }
+          passwordValue={signUpData.password.value}
+          isValid={signUpData.password.touched && signUpData.password.valid}
+        />
+        <ButtonLoading
+          isDisabled={!formValidation}
+          loading={loading}
+          ctaText='Zarejestruj'
+        />
+      </form>
     </>
   );
 };
 
 const StyledAlert = styled(Alert)`
   margin-bottom: 10px;
+`;
+
+const StyledDebounceInput = styled(DebounceInput)`
+  .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+  .MuiOutlinedInput-notchedOutline {
+    ${({ isValid }) =>
+      isValid &&
+      `
+    border-color: green;
+
+  `}
+  }
 `;
 
 export default SignUpPanel;

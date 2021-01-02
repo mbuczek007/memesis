@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import AuthService from '../../services/auth.service';
-import { setMessage, clearMessage } from '../reducers/messageSlice';
+import { clearMessage, setAuthMessageByCode } from '../reducers/messageSlice';
 
 const user = JSON.parse(localStorage.getItem('user'));
 
@@ -20,33 +20,14 @@ export const slice = createSlice({
       state.isLoggedIn = false;
       state.user = null;
     },
-    loginFail: (state) => {
-      state.isLoggedIn = false;
-      state.user = null;
-    },
   },
 });
 
 export const { logInSuccess, logOut, loginFail } = slice.actions;
 
-export const register = (name, email, password) => (dispatch) => {
-  return AuthService.register(name, email, password).then(
-    (response) => {
-      console.log(response.data);
-
-      dispatch(setMessage({ message: response.data.message }));
-
-      return Promise.resolve();
-    },
-    (error) => {
-      console.log(error.response.data);
-
-      return Promise.reject();
-    }
-  );
-};
-
 export const login = (email, name, password) => (dispatch) => {
+  dispatch(clearMessage());
+
   return AuthService.login(email, name, password).then(
     (data) => {
       dispatch(
@@ -55,15 +36,10 @@ export const login = (email, name, password) => (dispatch) => {
         })
       );
 
-      dispatch(clearMessage());
-
       return Promise.resolve();
     },
     (error) => {
-      console.log(error.response.data);
-
-      dispatch(loginFail());
-      dispatch(setMessage({ message: error.response.data.errors }));
+      dispatch(setAuthMessageByCode(error.response.data.errors));
 
       return Promise.reject();
     }
@@ -71,6 +47,8 @@ export const login = (email, name, password) => (dispatch) => {
 };
 
 export const facebooklogin = (accessToken, userID) => (dispatch) => {
+  dispatch(clearMessage());
+
   return AuthService.facebookLogin(accessToken, userID).then(
     (data) => {
       dispatch(
@@ -79,16 +57,28 @@ export const facebooklogin = (accessToken, userID) => (dispatch) => {
         })
       );
 
-      dispatch(clearMessage());
-
-      console.log(data);
       return Promise.resolve();
     },
     (error) => {
-      dispatch(loginFail());
       console.log(error.response);
-      /* dispatch(setMessage({ message: error.response.data.error })); */
+      return Promise.reject();
+    }
+  );
+};
 
+export const register = (name, email, password) => (dispatch) => {
+  return AuthService.register(name, email, password).then(
+    (data) => {
+      dispatch(
+        logInSuccess({
+          user: data,
+        })
+      );
+
+      return Promise.resolve();
+    },
+    (error) => {
+      console.log(error.response);
       return Promise.reject();
     }
   );

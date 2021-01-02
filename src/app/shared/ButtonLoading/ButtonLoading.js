@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ButtonLoading = (props) => {
-  const { loading, ctaText } = props;
+  const { loading, ctaText, isDisabled } = props;
   const classes = useStyles();
 
   return (
@@ -32,7 +32,7 @@ const ButtonLoading = (props) => {
         variant='contained'
         color='primary'
         className={classes.submit}
-        disabled={loading}
+        disabled={loading || isDisabled}
       >
         {ctaText}
       </Button>

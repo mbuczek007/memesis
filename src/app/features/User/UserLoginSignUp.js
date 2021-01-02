@@ -4,13 +4,17 @@ import Link from '@material-ui/core/Link';
 import LoginPanel from '../User/LoginPanel';
 import SignUpPanel from '../User/SignUpPanel';
 import Box from '@material-ui/core/Box';
+import { useDispatch } from 'react-redux';
+import { clearMessage } from '../../../store/reducers/messageSlice';
 
 const UserLoginSignUp = () => {
+  const dispatch = useDispatch();
   const [signUpView, setSignUpView] = useState(false);
 
   const handleChangeView = (e) => {
     e.preventDefault();
     setSignUpView(!signUpView);
+    dispatch(clearMessage());
   };
 
   return (

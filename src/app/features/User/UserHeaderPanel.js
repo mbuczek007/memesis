@@ -3,6 +3,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 import { logout } from '../../../store/reducers/authSlice';
+import { clearMessage } from '../../../store/reducers/messageSlice';
 import Popover from '@material-ui/core/Popover';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { useDispatch, useSelector } from 'react-redux';
@@ -64,7 +65,9 @@ const UserHeaderPanel = () => {
                 Zaloguj
               </Button>
               <Popover
-                onExited={() => {}}
+                onExited={() => {
+                  dispatch(clearMessage());
+                }}
                 {...bindPopover(popupState)}
                 anchorOrigin={{
                   vertical: 'bottom',

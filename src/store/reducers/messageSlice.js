@@ -19,4 +19,14 @@ export const slice = createSlice({
 
 export const { setMessage, clearMessage } = slice.actions;
 
+export const setAuthMessageByCode = (messageCode) => (dispatch) => {
+  let message = '';
+
+  if (messageCode === 'LOGIN-FAILED') {
+    message = 'Nieprawidłowa dane uzytkownika.';
+  }
+
+  dispatch(setMessage({ message }));
+};
+
 export default slice.reducer;

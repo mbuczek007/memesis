@@ -6,12 +6,27 @@ import FormControl from '@material-ui/core/FormControl';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import IconButton from '@material-ui/core/IconButton';
 import InputLabel from '@material-ui/core/InputLabel';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import styled from 'styled-components';
 
-const PasswordInput = ({ id, onInputChange, passwordValue }) => {
+const PasswordInput = ({
+  id,
+  onInputChange,
+  passwordValue,
+  error,
+  helperText,
+  isValid,
+}) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <FormControl variant='outlined' fullWidth margin='normal'>
+    <StyledFormControl
+      variant='outlined'
+      fullWidth
+      margin='normal'
+      error={error}
+      isValid={isValid}
+    >
       <InputLabel htmlFor={id}>Hasło*</InputLabel>
       <OutlinedInput
         id={id}
@@ -35,8 +50,21 @@ const PasswordInput = ({ id, onInputChange, passwordValue }) => {
         }
         labelWidth={46}
       />
-    </FormControl>
+      <FormHelperText error={error}>{helperText}</FormHelperText>
+    </StyledFormControl>
   );
 };
+
+const StyledFormControl = styled(FormControl)`
+  .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline,
+  .MuiOutlinedInput-notchedOutline {
+    ${({ isValid }) =>
+      isValid &&
+      `
+    border-color: green;
+
+  `}
+  }
+`;
 
 export default PasswordInput;
