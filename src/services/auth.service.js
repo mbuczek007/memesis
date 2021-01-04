@@ -1,16 +1,6 @@
 import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL;
 
-const checkRegisterData = (nameOrEmail) => {
-  return axios
-    .post(API_URL + 'auth/signup/check', {
-      nameOrEmail,
-    })
-    .then((response) => {
-      return response.data;
-    });
-};
-
 const register = (name, email, password) => {
   return axios
     .post(API_URL + 'auth/signup', {
@@ -54,6 +44,17 @@ const facebookLogin = (accessToken, userId) => {
         localStorage.setItem('user', JSON.stringify(response.data));
       }
 
+      return response.data;
+    });
+};
+
+const checkRegisterData = (mode, nameOrEmail) => {
+  return axios
+    .post(API_URL + 'auth/signup/check', {
+      mode,
+      nameOrEmail,
+    })
+    .then((response) => {
       return response.data;
     });
 };

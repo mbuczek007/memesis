@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { register, login } from '../../../store/reducers/authSlice';
+import { register } from '../../../store/reducers/authSlice';
 import TextField from '@material-ui/core/TextField';
 import Alert from '@material-ui/lab/Alert';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,6 +10,8 @@ import Typography from '@material-ui/core/Typography';
 import { DebounceInput } from 'react-debounce-input';
 import AuthService from '../../../services/auth.service';
 import { checkValidity } from '../../utils/utils';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import InputAdornment from '@material-ui/core/InputAdornment';
 
 const SignUpPanel = () => {
   const initialSignUpData = {
@@ -23,6 +25,7 @@ const SignUpPanel = () => {
       errorText: 'Nazwa uzytkownika powinna mieć od 2 do 64 znaków.',
       touched: false,
       valid: false,
+      validating: false,
     },
     email: {
       value: '',
@@ -33,6 +36,7 @@ const SignUpPanel = () => {
       errorText: 'Niepoprawy adres e-mail.',
       touched: false,
       valid: false,
+      validating: false,
     },
     password: {
       value: '',
@@ -54,6 +58,23 @@ const SignUpPanel = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const checkFormValid = () => {
+      let valid = true;
+
+      for (let i in signUpData) {
+        if (signUpData[i].valid === false) {
+          valid = false;
+          break;
+        }
+      }
+
+      if (valid) {
+        setFormValidation(true);
+      } else {
+        setFormValidation(false);
+      }
+    };
+
     checkFormValid();
   }, [signUpData]);
 
@@ -72,25 +93,16 @@ const SignUpPanel = () => {
     });
   };
 
-  const checkFormValid = () => {
-    let valid = true;
-
-    for (let i in signUpData) {
-      if (signUpData[i].valid === false) {
-        valid = false;
-        break;
-      }
-    }
-
-    if (valid) {
-      setFormValidation(true);
-    } else {
-      setFormValidation(false);
-    }
-  };
-
   const handleChangeNameOrEmail = (value, mode) => {
-    AuthService.checkRegisterData(value).then(
+    setSignUpData({
+      ...signUpData,
+      [mode]: {
+        ...signUpData[mode],
+        validating: true,
+      },
+    });
+
+    AuthService.checkRegisterData(mode, value).then(
       () => {
         setSignUpData({
           ...signUpData,
@@ -100,6 +112,7 @@ const SignUpPanel = () => {
             errorText: initialSignUpData[mode].errorText,
             touched: true,
             valid: checkValidity(value, signUpData[mode].validationRules),
+            validating: false,
           },
         });
       },
@@ -112,6 +125,7 @@ const SignUpPanel = () => {
             errorText: error.response.data.error,
             touched: true,
             valid: false,
+            validating: false,
           },
         });
       }
@@ -154,6 +168,13 @@ const SignUpPanel = () => {
           autoFocus
           margin='normal'
           id='username'
+          InputProps={{
+            endAdornment: signUpData.name.validating && (
+              <InputAdornment position='end'>
+                <CircularProgress size={20} color='primary' />
+              </InputAdornment>
+            ),
+          }}
         />
 
         <StyledDebounceInput
@@ -180,6 +201,13 @@ const SignUpPanel = () => {
           autoComplete='email'
           margin='normal'
           id='email'
+          InputProps={{
+            endAdornment: signUpData.email.validating && (
+              <InputAdornment position='end'>
+                <CircularProgress size={20} color='primary' />
+              </InputAdornment>
+            ),
+          }}
         />
         <PasswordInput
           id='signUpPassword'
@@ -208,7 +236,7 @@ const SignUpPanel = () => {
           isValid={signUpData.password.touched && signUpData.password.valid}
         />
         <ButtonLoading
-          isDisabled={!formValidation}
+          isDisabled={!formValidation || loading}
           loading={loading}
           ctaText='Zarejestruj'
         />

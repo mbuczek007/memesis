@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import AuthService from '../../services/auth.service';
-import { clearMessage, setAuthMessageByCode } from '../reducers/messageSlice';
+import { clearMessage, setMessage } from '../reducers/messageSlice';
 
 const user = JSON.parse(localStorage.getItem('user'));
 
@@ -39,8 +39,7 @@ export const login = (email, name, password) => (dispatch) => {
       return Promise.resolve();
     },
     (error) => {
-      dispatch(setAuthMessageByCode(error.response.data.errors));
-
+      dispatch(setMessage({ message: error.response.data.error }));
       return Promise.reject();
     }
   );
@@ -60,7 +59,7 @@ export const facebooklogin = (accessToken, userID) => (dispatch) => {
       return Promise.resolve();
     },
     (error) => {
-      console.log(error.response);
+      dispatch(setMessage({ message: error.response.data.error }));
       return Promise.reject();
     }
   );
@@ -78,7 +77,7 @@ export const register = (name, email, password) => (dispatch) => {
       return Promise.resolve();
     },
     (error) => {
-      console.log(error.response);
+      dispatch(setMessage({ message: error.response.data.error }));
       return Promise.reject();
     }
   );

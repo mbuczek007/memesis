@@ -4,7 +4,6 @@ import TextField from '@material-ui/core/TextField';
 import Alert from '@material-ui/lab/Alert';
 import { useDispatch, useSelector } from 'react-redux';
 import ButtonLoading from '../../shared/ButtonLoading/ButtonLoading';
-import { clearMessage } from '../../../store/reducers/messageSlice';
 import { login, facebooklogin } from '../../../store/reducers/authSlice';
 import styled from 'styled-components';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
@@ -15,35 +14,34 @@ import Typography from '@material-ui/core/Typography';
 const initialLoginData = {
   loginOrEmail: '',
   password: '',
-  loading: false,
 };
 
 const LoginPanel = () => {
   const dispatch = useDispatch();
   const [loginData, setLoginData] = useState(initialLoginData);
+  const [loading, setLoading] = useState(false);
   const { message } = useSelector((state) => state.message);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
 
-    setLoginData({
-      ...loginData,
-      loading: true,
-    });
+    setLoading(true);
 
     dispatch(
       login(loginData.loginOrEmail, loginData.loginOrEmail, loginData.password)
     ).catch(() => {
-      setLoginData({
-        ...loginData,
-        loading: false,
-      });
+      setLoading(false);
     });
+  };
+
+  const handleClickFacebookLogin = () => {
+    setLoading(true);
+    setLoginData(initialLoginData);
   };
 
   const responseFacebook = (response) => {
     dispatch(facebooklogin(response.accessToken, response.userID)).catch(() => {
-      setLoginData(initialLoginData);
+      setLoading(false);
     });
   };
 
@@ -85,11 +83,13 @@ const LoginPanel = () => {
           }}
           passwordValue={loginData.password}
         />
-        <ButtonLoading loading={loginData.loading} ctaText='Zaloguj' />
+        <ButtonLoading loading={loading} ctaText='Zaloguj' />
       </form>
       <FacebookLogin
         appId='358432648571666'
         autoLoad={false}
+        onClick={handleClickFacebookLogin}
+        isDisabled={loading}
         callback={responseFacebook}
         render={(renderProps) => (
           <StyledFacebookLoginButton
@@ -98,6 +98,7 @@ const LoginPanel = () => {
             variant='contained'
             startIcon={<FacebookIcon />}
             onClick={renderProps.onClick}
+            disabled={loading}
           >
             Zaloguj się przez facebooka
           </StyledFacebookLoginButton>
