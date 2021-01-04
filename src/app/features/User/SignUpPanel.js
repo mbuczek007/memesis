@@ -230,7 +230,7 @@ const SignUpPanel = () => {
           helperText={
             signUpData.password.touched && !signUpData.password.valid
               ? signUpData.password.errorText
-              : ''
+              : 'Sprawdź podane hasło za pomocą ikony oka po prawej stronie.'
           }
           passwordValue={signUpData.password.value}
           isValid={signUpData.password.touched && signUpData.password.valid}
