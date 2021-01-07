@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { register } from '../../../store/reducers/authSlice';
 import TextField from '@material-ui/core/TextField';
 import Alert from '@material-ui/lab/Alert';
@@ -9,7 +9,7 @@ import PasswordInput from '../../shared/PasswordInput/PasswordInput';
 import Typography from '@material-ui/core/Typography';
 import { DebounceInput } from 'react-debounce-input';
 import AuthService from '../../../services/auth.service';
-import { checkValidity } from '../../utils/utils';
+import { checkValidity, convertToArray } from '../../utils/utils';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import InputAdornment from '@material-ui/core/InputAdornment';
 
@@ -54,43 +54,29 @@ const SignUpPanel = () => {
   const dispatch = useDispatch();
   const { message } = useSelector((state) => state.message);
   const [signUpData, setSignUpData] = useState(initialSignUpData);
-  const [formValidation, setFormValidation] = useState(false);
   const [loading, setLoading] = useState(false);
+  const formElementsArray = convertToArray(signUpData);
 
-  useEffect(() => {
-    const checkFormValid = () => {
-      let valid = true;
-
-      for (let i in signUpData) {
-        if (signUpData[i].valid === false) {
-          valid = false;
-          break;
-        }
-      }
-
-      if (valid) {
-        setFormValidation(true);
-      } else {
-        setFormValidation(false);
-      }
-    };
-
-    checkFormValid();
-  }, [signUpData]);
+  const checkFormValid = (element) => {
+    return signUpData[element.id].valid;
+  };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
 
-    dispatch(
-      register(
-        signUpData.name.value,
-        signUpData.email.value,
-        signUpData.password.value
-      )
-    ).catch(() => {
-      setLoading(false);
-    });
+    if (formElementsArray.every(checkFormValid)) {
+      setLoading(true);
+
+      dispatch(
+        register(
+          signUpData.name.value,
+          signUpData.email.value,
+          signUpData.password.value
+        )
+      ).catch(() => {
+        setLoading(false);
+      });
+    }
   };
 
   const handleChangeNameOrEmail = (value, mode) => {
@@ -236,7 +222,7 @@ const SignUpPanel = () => {
           isValid={signUpData.password.touched && signUpData.password.valid}
         />
         <ButtonLoading
-          isDisabled={!formValidation || loading}
+          isDisabled={!formElementsArray.every(checkFormValid) || loading}
           loading={loading}
           ctaText='Zarejestruj'
         />

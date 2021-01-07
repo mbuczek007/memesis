@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PageTitle from '../../shared/PageTitle/PageTitle';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -6,22 +6,11 @@ import ButtonLoading from '../../shared/ButtonLoading/ButtonLoading';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Alert from '@material-ui/lab/Alert';
-import { makeStyles } from '@material-ui/core/styles';
 import { DebounceInput } from 'react-debounce-input';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { inputChangeHandler, convertToArray } from '../../utils/utils';
-import db from '../../../firebase';
-
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    marginBottom: theme.spacing(3),
-    padding: theme.spacing(2),
-    [theme.breakpoints.up(600 + theme.spacing(3) * 2)]: {
-      marginBottom: theme.spacing(6),
-      padding: theme.spacing(3),
-    },
-  },
-}));
+import ItemService from '../../../services/item.service';
+import { clearMessage, setMessage } from '../../../store/reducers/messageSlice';
 
 const AddNew = () => {
   const initialControls = {
@@ -31,11 +20,11 @@ const AddNew = () => {
         type: 'url',
         placeholder: 'Media Url',
       },
-      value: '',
       validation: {
         required: true,
         errorText: 'To nie jest url',
       },
+      value: '',
       valid: false,
       touched: false,
     },
@@ -45,13 +34,13 @@ const AddNew = () => {
         type: 'text',
         placeholder: 'Tytuł',
       },
-      value: '',
       validation: {
         required: true,
         minLength: 3,
-        maxLength: 50,
-        errorText: 'Tytuł zawierać od 3 do 50 znaków',
+        maxLength: 250,
+        errorText: 'Tytuł powinien zawierać od 3 do 250 znaków.',
       },
+      value: '',
       valid: false,
       touched: false,
     },
@@ -61,14 +50,13 @@ const AddNew = () => {
         type: 'text',
         placeholder: 'Podpis',
       },
-      value: '',
       validation: {
         required: false,
-        minLength: 3,
-        maxLength: 1000,
-        errorText: 'Tytuł powinien zawierać minimum 3 znaki',
+        maxLength: 1500,
+        errorText: 'Zbyt długi tytuł.',
       },
-      valid: false,
+      value: '',
+      valid: true,
       touched: false,
     },
     itemSource: {
@@ -80,81 +68,68 @@ const AddNew = () => {
       value: '',
       validation: {
         required: false,
-        minLength: 0,
-        maxLength: 500,
-        errorText: 'Źródło jest za długie',
+        maxLength: 1500,
+        errorText: 'Zbyt długie źródło.',
       },
-      valid: false,
+      valid: true,
       touched: false,
     },
   };
-  const classes = useStyles();
-  const { isLoggedIn } = useSelector((state) => state.auth);
-  const [controls, setControls] = useState(initialControls);
-  const [statusInfo, setStatusInfo] = useState({
-    type: null,
-    message: null,
-    loading: false,
-  });
 
+  const dispatch = useDispatch();
+  const { message } = useSelector((state) => state.message);
+  const { isLoggedIn, user } = useSelector((state) => state.auth);
+  const [controls, setControls] = useState(initialControls);
+  const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const formElementsArray = convertToArray(controls);
+
+  useEffect(() => {
+    dispatch(clearMessage());
+  }, []);
 
   const checkFormValid = (element) => {
     return controls[element.id].valid;
   };
 
   const submitHandler = (e) => {
-    /*  e.preventDefault();
+    e.preventDefault();
 
     if (formElementsArray.every(checkFormValid)) {
-      setStatusInfo({ ...statusInfo, loading: true });
+      dispatch(clearMessage());
+      setLoading(true);
 
-      db.collection('items')
-        .doc()
-        .set({
-          createDate: new Date().getTime(),
-          disableComments: false,
-          isPending: true,
-          isPrivate: false,
-          mediaUrl: controls.itemImageUrl.value,
-          source: controls.itemSource.value,
-          subtitle: controls.itemSubtitle.value,
-          title: controls.itemTitle.value,
-          titleColor: '#000',
-          userId: user.userId,
-        })
-        .then(function () {
-          const updatedStatus = {
-            ...statusInfo,
-            type: 'success',
-            message: 'Mem Został dodany',
-            loading: false,
-          };
-          setStatusInfo(updatedStatus);
+      return ItemService.createItem(
+        controls.itemImageUrl.value,
+        controls.itemTitle.value,
+        controls.itemSubtitle.value,
+        controls.itemSource.value,
+        'url',
+        user.userData.id,
+        user.token
+      ).then(
+        (data) => {
+          setIsSuccess(true);
+          dispatch(setMessage({ message: data.message }));
+          setLoading(false);
           setControls(initialControls);
-        })
-        .catch(function (error) {
-          const updatedStatus = {
-            ...statusInfo,
-            type: 'error',
-            message: error,
-            loading: false,
-          };
-          setStatusInfo(updatedStatus);
-          setControls(initialControls);
-        });
-    } */
+
+          return Promise.resolve();
+        },
+        (error) => {
+          setIsSuccess(false);
+          dispatch(setMessage({ message: error.response.data.error }));
+          setLoading(false);
+
+          return Promise.reject();
+        }
+      );
+    }
   };
 
   const form = formElementsArray.map((formElement) => {
     return (
-      <Grid
-        key={formElement.id}
-        item
-        xs={12}
-        sm={12}
-        className={classes[formElement.id]}
-      >
+      <Grid key={formElement.id} item xs={12} sm={12}>
         <DebounceInput
           debounceTimeout={500}
           element={TextField}
@@ -195,12 +170,18 @@ const AddNew = () => {
           color='textSecondary'
           component='p'
         >
-          Zaloguj się aby dodawać nowe rzeczy.
+          Dodawanie motywatorów mozliwe jest tylko dla zalogowanych
+          uzytkowników.
         </Typography>
       ) : (
-        <Paper className={classes.paper}>
-          {statusInfo.type && (
-            <Alert severity={statusInfo.type}>{statusInfo.message}</Alert>
+        <Paper>
+          {message && (
+            <Alert
+              variant='outlined'
+              severity={isSuccess ? 'success' : 'error'}
+            >
+              {message}
+            </Alert>
           )}
           <Typography
             align='center'
@@ -208,13 +189,19 @@ const AddNew = () => {
             variant='h5'
             color='inherit'
           >
-            Dodaj Nowy Mem
+            Dodaj Motywator
           </Typography>
           <form onSubmit={submitHandler}>
-            <Grid className={classes.container} container spacing={3}>
+            <Grid container spacing={3}>
               {form}
               <Grid item xs={12} md={3}>
-                <ButtonLoading loading={statusInfo.loading} ctaText='Dodaj' />
+                <ButtonLoading
+                  isDisabled={
+                    !formElementsArray.every(checkFormValid) || loading
+                  }
+                  loading={loading}
+                  ctaText='Dodaj'
+                />
               </Grid>
             </Grid>
           </form>
