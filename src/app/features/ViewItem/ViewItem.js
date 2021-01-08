@@ -4,8 +4,8 @@ import PageTitle from '../../shared/PageTitle/PageTitle';
 import NotFound from '../NotFound/NotFound';
 import Grid from '@material-ui/core/Grid';
 import CardItem from '../CardItem/CardItem';
-import api from '../../../api';
 import styled from 'styled-components';
+import ItemService from '../../../services/item.service';
 
 const ViewItem = () => {
   let { itemId } = useParams();
@@ -16,20 +16,16 @@ const ViewItem = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    const getItem = async () => {
-      await api
-        .getItemById(itemId)
-        .then((item) => {
-          if (!item) {
-            setNotFound(true);
-          } else {
-            setVievedItem({ data: item.data.data });
-          }
+    const getItem = () => {
+      ItemService.getItemById(itemId).then(
+        (data) => {
+          setVievedItem({ data: data.item });
           setIsLoading(false);
-        })
-        .catch(() => {
+        },
+        () => {
           setNotFound(true);
-        });
+        }
+      );
     };
 
     getItem();

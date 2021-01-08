@@ -40,9 +40,16 @@ const getItems = (mode, perPage, offset) => {
     });
 };
 
+const getItemById = (id) => {
+  return axios.get(API_URL + `item/${id}`).then((response) => {
+    return response.data;
+  });
+};
+
 const ItemService = {
   createItem,
   getItems,
+  getItemById,
 };
 
 export default ItemService;
