@@ -32,6 +32,17 @@ const createItem = (
     });
 };
 
-export default {
-  createItem,
+const getItems = (mode, perPage, offset) => {
+  return axios
+    .get(API_URL + `items/${mode}/${perPage}/${offset}`)
+    .then((response) => {
+      return response.data;
+    });
 };
+
+const ItemService = {
+  createItem,
+  getItems,
+};
+
+export default ItemService;

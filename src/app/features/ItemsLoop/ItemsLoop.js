@@ -4,10 +4,10 @@ import Grid from '@material-ui/core/Grid';
 import CardItem from '../CardItem/CardItem';
 import ReactPaginate from 'react-paginate';
 import { useHistory, useParams } from 'react-router-dom';
-import api from '../../../api';
 import NotFound from '../NotFound/NotFound';
 import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
+import ItemService from '../../../services/item.service';
 
 const itemsPerPage = 3;
 
@@ -27,40 +27,50 @@ const ItemsLoop = ({ mode }) => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const fetchItems = async () => {
+
+    const fetchItems = () => {
       setIsLoading(true);
 
-      await api
-        .getItems(mode, pagination.perPage, pagination.offset)
-        .then((items) => {
-          if (items.data.items.docs.length === 0) {
-            setNotFound(true);
-          } else {
-            setItems(items.data.items);
-          }
-
+      ItemService.getItems(mode, pagination.perPage, pagination.offset).then(
+        (data) => {
+          setItems(data.items);
           setIsLoading(false);
-        })
-        .catch(() => {
+        },
+        () => {
           setNotFound(true);
-        });
+        }
+      );
     };
 
     fetchItems();
   }, [mode, pagination.perPage, pagination.offset]);
 
+  const generatePageTitle = () => {
+    let title = '';
+
+    if (mode === 'accepted') {
+      title = 'Główna';
+    } else if (mode === 'pending') {
+      title = 'W kolejce';
+    } else if (mode === 'top') {
+      title = 'Najlepsze';
+    }
+
+    return title;
+  };
+
   const handlePageClick = (e) => {
     const selectedPage = e.selected;
+    const page = selectedPage + 1;
+    let pathname = '';
 
-    if (mode === 'pending') {
-      history.push({
-        pathname: `/pending/${selectedPage + 1}`,
-      });
-    } else {
-      history.push({
-        pathname: `/page/${selectedPage + 1}`,
-      });
+    if (mode === 'pending' || mode === 'top') {
+      pathname = `/${mode}/${page}`;
+    } else if (mode === 'accepted') {
+      pathname = `/page/${page}`;
     }
+
+    history.push({ pathname });
 
     setPagination({
       ...pagination,
@@ -73,7 +83,7 @@ const ItemsLoop = ({ mode }) => {
     const skeletonItems = 2;
     let skElems = [];
 
-    for (var i = 0; i < skeletonItems; i++) {
+    for (let i = 0; i < skeletonItems; i++) {
       skElems.push(
         <CardItem key={i} item={null} linked={false} loading={true} />
       );
@@ -97,7 +107,7 @@ const ItemsLoop = ({ mode }) => {
         renderItemsSkeleton()
       ) : (
         <>
-          <PageTitle title={mode !== 'pending' ? 'Główna' : 'Poczekalnia'} />
+          <PageTitle title={generatePageTitle()} />
           {items.docs.map((item) => (
             <CardItem key={item.id} item={item} linked={true} loading={false} />
           ))}

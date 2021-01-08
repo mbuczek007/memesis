@@ -22,20 +22,23 @@ const App = () => {
       <HelmetProvider>
         <AppShell>
           <Switch>
-            <Route key='home-mode' path='/' exact>
+            <Route key='acc' path='/' exact>
               <ItemsLoop mode='accepted' />
             </Route>
-            <Route key='home-mode-page' path='/page/:pageId?'>
+            <Route key='acc-pag' path='/page/:pageId'>
               <ItemsLoop mode='accepted' />
             </Route>
-            <Route key='pending-mode' path='/pending/:pageId?'>
+            <Route key='pen' path='/pending/:pageId?'>
               <ItemsLoop mode='pending' />
+            </Route>
+            <Route key='top' path='/top/:pageId?'>
+              <ItemsLoop mode='top' />
+            </Route>
+            <Route path='/view/:itemId'>
+              <ViewItem />
             </Route>
             <Route path='/add'>
               <AddNew />
-            </Route>
-            <Route path='/:itemId'>
-              <ViewItem />
             </Route>
             <Route>
               <NotFound />

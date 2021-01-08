@@ -25,11 +25,6 @@ const headerLinks = [
   },
   {
     id: 3,
-    path: '/random',
-    name: 'Losowy',
-  },
-  {
-    id: 4,
     path: '/add',
     name: 'Dodaj',
   },

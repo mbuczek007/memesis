@@ -9,7 +9,7 @@ const CardLInk = ({ children, linked, itemId }) => {
   }
 
   return (
-    <StyledLink underline='none' component={RouterLink} to={`/${itemId}`}>
+    <StyledLink underline='none' component={RouterLink} to={`/view/${itemId}`}>
       {children}
     </StyledLink>
   );
