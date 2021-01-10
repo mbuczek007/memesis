@@ -98,9 +98,15 @@ const CardItem = ({ item, linked, loading }) => {
           <DateInfoWrapper>
             <ScheduleIcon fontSize='small' />
             {moment(item.createdAt).fromNow()}
-            <span> przez:</span> mbuczek |
+            <span> przez:</span> {item.userName} |
             <CommentButton aria-label='comments'>
-              <StyledBadge badgeContent={1000} max={99} color='secondary'>
+              <StyledBadge
+                badgeContent={
+                  item.commentsCount === 0 ? '0' : item.commentsCount
+                }
+                max={99}
+                color='secondary'
+              >
                 <CommentIcon fontSize='small' />
               </StyledBadge>
             </CommentButton>
