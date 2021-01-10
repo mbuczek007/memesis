@@ -31,7 +31,11 @@ const ItemsLoop = ({ mode }) => {
     const fetchItems = () => {
       setIsLoading(true);
 
-      ItemService.getItems(mode, pagination.perPage, pagination.offset).then(
+      ItemService.getItems(
+        mode,
+        pageId ? pagination.perPage : itemsPerPage,
+        pageId ? pagination.offset : 0
+      ).then(
         (data) => {
           setItems(data.items);
           setIsLoading(false);
@@ -43,7 +47,7 @@ const ItemsLoop = ({ mode }) => {
     };
 
     fetchItems();
-  }, [mode, pagination.perPage, pagination.offset]);
+  }, [mode, pagination.perPage, pagination.offset, pageId]);
 
   const generatePageTitle = () => {
     let title = '';

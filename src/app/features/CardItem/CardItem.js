@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
 import CardLInk from './CardLink';
@@ -12,9 +12,46 @@ import Skeleton from '@material-ui/lab/Skeleton';
 import moment from 'moment';
 import 'moment/locale/pl';
 import ScheduleIcon from '@material-ui/icons/Schedule';
+import ItemService from '../../../services/item.service';
+import { useSelector } from 'react-redux';
 
 const CardItem = ({ item, linked, loading }) => {
   moment.locale('pl');
+  const [votes, setVotes] = useState(0);
+  const [votesCount, setVotesCount] = useState(0);
+  const [voteMessage, setVoteMessage] = useState('');
+  const [voteMessageSuccess, setVoteMessageSuccess] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    setVotes(item ? item.votes : 0);
+    setVotesCount(item ? item.votesCount : 0);
+  }, [item]);
+
+  const handleVoteClick = (mode) => {
+    setVoteMessage('');
+
+    ItemService.itemVote(item.id, mode).then(
+      (response) => {
+        let count = 0;
+
+        if (mode === 'up') {
+          count = 1;
+        } else if (mode === 'down') {
+          count = -1;
+        }
+
+        setVotes(item.votes + count);
+        setVotesCount(item.votesCount + 1);
+        setVoteMessage(response.message);
+        setVoteMessageSuccess(true);
+      },
+      (error) => {
+        setVoteMessage(error.response.data.error);
+        setVoteMessageSuccess(false);
+      }
+    );
+  };
 
   return (
     <ItemWrapper>
@@ -26,7 +63,7 @@ const CardItem = ({ item, linked, loading }) => {
             <img src={item.mediaUrl} alt={item.title} />
           </CardLInk>
         )}
-        <StyledMuiCardContent>
+        <div>
           <TypographyTitle variant='h5' component='h2'>
             {loading ? (
               <StyledSkeleton animation='wave' width='75%' height={40} />
@@ -45,7 +82,7 @@ const CardItem = ({ item, linked, loading }) => {
               </CardLInk>
             )}
           </TypographySubtitle>
-        </StyledMuiCardContent>
+        </div>
       </StyledMuiCard>
       {loading ? (
         <StyledSkeleton animation='wave' width='25%' />
@@ -91,14 +128,23 @@ const CardItem = ({ item, linked, loading }) => {
           ) : (
             <>
               <VoteStatus>
-                <span>{item.votes}</span> / ({item.votesCount})
+                <span>{votes > 0 ? '+' + votes : votes}</span> / ({votesCount})
               </VoteStatus>
-              <VotingIcon voteaction='plus'>
+              <VotingIcon
+                voteaction='plus'
+                onClick={(e) => handleVoteClick('up')}
+              >
                 <AddBoxIcon fontSize='large' />
               </VotingIcon>
-              <VotingIcon voteaction='down'>
+              <VotingIcon
+                voteaction='down'
+                onClick={(e) => handleVoteClick('down')}
+              >
                 <IndeterminateCheckBoxIcon fontSize='large' />
               </VotingIcon>
+              <StyledVoteMessage isSuccess={voteMessageSuccess}>
+                {voteMessage}
+              </StyledVoteMessage>
             </>
           )}
         </VotesActtionPanel>
@@ -126,7 +172,19 @@ const StyledMuiCard = styled(Paper)`
   }
 `;
 
-const StyledMuiCardContent = styled.div``;
+const StyledVoteMessage = styled.div`
+  position: absolute;
+  font-weight: 700;
+  font-size: 12px;
+  top: -21px;
+  width: 240px;
+  text-align: right;
+  color: ${({ isSuccess }) =>
+    `
+    ${isSuccess ? 'green' : 'red'};
+
+  `};
+`;
 
 const TypographyTitle = styled(Typography)`
   font-weight: 700;
@@ -195,6 +253,7 @@ const VotesActtionPanel = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
+  position: relative;
 `;
 
 const VoteStatus = styled.div`

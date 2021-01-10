@@ -86,7 +86,7 @@ const AddNew = () => {
 
   useEffect(() => {
     dispatch(clearMessage());
-  }, []);
+  }, [dispatch]);
 
   const checkFormValid = (element) => {
     return controls[element.id].valid;
@@ -99,7 +99,7 @@ const AddNew = () => {
       dispatch(clearMessage());
       setLoading(true);
 
-      return ItemService.createItem(
+      ItemService.createItem(
         controls.itemImageUrl.value,
         controls.itemTitle.value,
         controls.itemSubtitle.value,
@@ -113,15 +113,11 @@ const AddNew = () => {
           dispatch(setMessage({ message: data.message }));
           setLoading(false);
           setControls(initialControls);
-
-          return Promise.resolve();
         },
         (error) => {
           setIsSuccess(false);
           dispatch(setMessage({ message: error.response.data.error }));
           setLoading(false);
-
-          return Promise.reject();
         }
       );
     }

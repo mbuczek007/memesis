@@ -46,10 +46,19 @@ const getItemById = (id) => {
   });
 };
 
+const itemVote = (itemId, voteValue) => {
+  return axios
+    .post(API_URL + 'item/vote', { itemId, voteValue })
+    .then((response) => {
+      return response.data;
+    });
+};
+
 const ItemService = {
   createItem,
   getItems,
   getItemById,
+  itemVote,
 };
 
 export default ItemService;

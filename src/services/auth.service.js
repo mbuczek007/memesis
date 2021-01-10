@@ -63,10 +63,12 @@ const logout = () => {
   localStorage.removeItem('user');
 };
 
-export default {
+const AuthService = {
   login,
   logout,
   facebookLogin,
   register,
   checkRegisterData,
 };
+
+export default AuthService;
