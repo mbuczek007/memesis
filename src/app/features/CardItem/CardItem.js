@@ -13,7 +13,7 @@ import moment from 'moment';
 import 'moment/locale/pl';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import ItemService from '../../../services/item.service';
-import { useSelector } from 'react-redux';
+import ChangeStatusButton from './ChangeStatusButton';
 
 const CardItem = ({ item, linked, loading }) => {
   moment.locale('pl');
@@ -21,7 +21,6 @@ const CardItem = ({ item, linked, loading }) => {
   const [votesCount, setVotesCount] = useState(0);
   const [voteMessage, setVoteMessage] = useState('');
   const [voteMessageSuccess, setVoteMessageSuccess] = useState(false);
-  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     setVotes(item ? item.votes : 0);
@@ -87,9 +86,18 @@ const CardItem = ({ item, linked, loading }) => {
       {loading ? (
         <StyledSkeleton animation='wave' width='25%' />
       ) : (
-        <Source gutterBottom variant='body1'>
-          Źródło: {item.source}
-        </Source>
+        <>
+          {item.source && (
+            <Source gutterBottom variant='body1'>
+              Źródło: {item.source}
+            </Source>
+          )}
+          <ChangeStatusButton
+            itemId={item.id}
+            isAccepted={item.isAccepted}
+            itemFirstAcceptedDate={item.firstAcceptedDate}
+          />
+        </>
       )}
       <ItemMeta>
         {loading ? (

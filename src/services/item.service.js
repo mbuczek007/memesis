@@ -54,11 +54,32 @@ const itemVote = (itemId, voteValue) => {
     });
 };
 
+const itemChangeStatus = (
+  itemId,
+  itemFirstAcceptedDate,
+  status,
+  authToken,
+  userId
+) => {
+  return axios
+    .put(
+      API_URL + 'item/status/change',
+      { itemId, itemFirstAcceptedDate, status, userId },
+      {
+        headers: { Authorization: `Bearer ${authToken}` },
+      }
+    )
+    .then((response) => {
+      return response.data;
+    });
+};
+
 const ItemService = {
   createItem,
   getItems,
   getItemById,
   itemVote,
+  itemChangeStatus,
 };
 
 export default ItemService;
