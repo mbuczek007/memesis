@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { NavLink as RouterLink } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -48,6 +48,8 @@ const Header = () => {
                   to={link.path}
                   variant='button'
                   color='textPrimary'
+                  activeClassName='MuiLink-underlineAlways'
+                  exact
                 >
                   {link.name}
                 </StyledLink>
@@ -87,6 +89,10 @@ const StyledPageTitle = styled(Typography)`
 const StyledLink = styled(Link)`
   margin: ${({ theme }) => theme.spacing(1)}px
     ${({ theme }) => theme.spacing(1.5)}px;
+
+  &.MuiLink-underlineAlways {
+    font-weight: 700;
+  }
 `;
 
 export default Header;
