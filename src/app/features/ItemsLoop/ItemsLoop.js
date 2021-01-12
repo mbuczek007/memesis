@@ -8,6 +8,7 @@ import NotFound from '../NotFound/NotFound';
 import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 import ItemService from '../../../services/item.service';
+import ChangeStatusButton from '../CardItem/ChangeStatusButton';
 
 const itemsPerPage = 3;
 
@@ -18,6 +19,7 @@ const ItemsLoop = ({ mode }) => {
   const [notFound, setNotFound] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [items, setItems] = useState({});
+  const [removeAction, setRemoveAction] = useState(false);
 
   const [pagination, setPagination] = useState({
     offset: pageId ? (pageIdInt - 1) * itemsPerPage : 0,
@@ -27,7 +29,9 @@ const ItemsLoop = ({ mode }) => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [pageId]);
 
+  useEffect(() => {
     const fetchItems = () => {
       setIsLoading(true);
 
@@ -47,7 +51,11 @@ const ItemsLoop = ({ mode }) => {
     };
 
     fetchItems();
-  }, [mode, pagination.perPage, pagination.offset, pageId]);
+  }, [mode, pagination.perPage, pagination.offset, pageId, removeAction]);
+
+  const handleRemoveItem = () => {
+    setRemoveAction(!removeAction);
+  };
 
   const generatePageTitle = () => {
     let title = '';
@@ -113,7 +121,17 @@ const ItemsLoop = ({ mode }) => {
         <>
           <PageTitle title={generatePageTitle()} />
           {items.docs.map((item) => (
-            <CardItem key={item.id} item={item} linked={true} loading={false} />
+            <React.Fragment key={item.id}>
+              {mode !== 'top' && (
+                <ChangeStatusButton
+                  itemId={item.id}
+                  isAccepted={item.isAccepted}
+                  itemFirstAcceptedDate={item.firstAcceptedDate}
+                  itemRemoved={handleRemoveItem}
+                />
+              )}
+              <CardItem item={item} linked={true} loading={false} />
+            </React.Fragment>
           ))}
           <StyledReactPaginate>
             <ReactPaginate

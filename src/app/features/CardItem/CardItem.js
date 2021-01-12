@@ -13,7 +13,6 @@ import moment from 'moment';
 import 'moment/locale/pl';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import ItemService from '../../../services/item.service';
-import ChangeStatusButton from './ChangeStatusButton';
 
 const CardItem = ({ item, linked, loading }) => {
   moment.locale('pl');
@@ -92,11 +91,6 @@ const CardItem = ({ item, linked, loading }) => {
               Źródło: {item.source}
             </Source>
           )}
-          <ChangeStatusButton
-            itemId={item.id}
-            isAccepted={item.isAccepted}
-            itemFirstAcceptedDate={item.firstAcceptedDate}
-          />
         </>
       )}
       <ItemMeta>
