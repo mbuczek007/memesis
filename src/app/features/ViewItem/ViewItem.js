@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import CardItem from '../CardItem/CardItem';
 import styled from 'styled-components';
 import ItemService from '../../../services/item.service';
+import Comments from '../Comments/Comments';
 
 const ViewItem = () => {
   let { itemId } = useParams();
@@ -46,6 +47,7 @@ const ViewItem = () => {
         <>
           <PageTitle title={vievedItem.data.title} />
           <CardItem item={vievedItem.data} linked={false} loading={false} />
+          <Comments />
         </>
       )}
     </StyledGridItem>

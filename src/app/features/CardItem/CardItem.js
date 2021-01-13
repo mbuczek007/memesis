@@ -101,7 +101,7 @@ const CardItem = ({ item, linked, loading }) => {
             <ScheduleIcon fontSize='small' />
             {moment(item.createdAt).fromNow()}
             <span> przez:</span> {item.userName} |
-            <CommentButton aria-label='comments'>
+            <CardLInk linked={linked} itemId={item.id} commentsMode>
               <StyledBadge
                 badgeContent={
                   item.commentsCount === 0 ? '0' : item.commentsCount
@@ -111,7 +111,7 @@ const CardItem = ({ item, linked, loading }) => {
               >
                 <CommentIcon fontSize='small' />
               </StyledBadge>
-            </CommentButton>
+            </CardLInk>
           </DateInfoWrapper>
         )}
         <VotesActtionPanel>
@@ -222,11 +222,9 @@ const DateInfoWrapper = styled.div`
   }
 `;
 
-const CommentButton = styled(IconButton)`
-  padding-left: 6px;
-`;
-
 const StyledBadge = styled(Badge)`
+  margin-left: 6px;
+
   .MuiBadge-badge {
     font-weight: 400;
     top: 1px;

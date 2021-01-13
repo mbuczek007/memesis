@@ -10,19 +10,17 @@ const createItem = (
   itemUserId,
   authToken
 ) => {
-  const bodyPayload = {
-    title: itemTitle,
-    subtitle: itemSubtitle,
-    source: itemSource,
-    mediaUrl: itemImageUrl,
-    mediaType: itemMediaType,
-    userId: itemUserId,
-  };
-
   return axios
     .post(
       API_URL + 'item',
-      { bodyPayload },
+      {
+        title: itemTitle,
+        subtitle: itemSubtitle,
+        source: itemSource,
+        mediaUrl: itemImageUrl,
+        mediaType: itemMediaType,
+        userId: itemUserId,
+      },
       {
         headers: { Authorization: `Bearer ${authToken}` },
       }

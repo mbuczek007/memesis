@@ -11,6 +11,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { inputChangeHandler, convertToArray } from '../../utils/utils';
 import ItemService from '../../../services/item.service';
 import { clearMessage, setMessage } from '../../../store/reducers/messageSlice';
+import styled from 'styled-components';
 
 const AddNew = () => {
   const initialControls = {
@@ -170,7 +171,7 @@ const AddNew = () => {
           uzytkowników.
         </Typography>
       ) : (
-        <Paper>
+        <StyledPaper>
           {message && (
             <Alert
               variant='outlined'
@@ -201,10 +202,14 @@ const AddNew = () => {
               </Grid>
             </Grid>
           </form>
-        </Paper>
+        </StyledPaper>
       )}
     </Grid>
   );
 };
+
+const StyledPaper = styled(Paper)`
+  padding: 30px;
+`;
 
 export default AddNew;
