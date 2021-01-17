@@ -1,43 +1,100 @@
-import React, { Component } from 'react';
+import React, { useState, createContext, useEffect } from 'react';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import AddCommentForm from './AddCommentForm';
 import Comment from './Comment';
-import { Typography } from '@material-ui/core';
+import CommentService from '../../../services/comment.service';
+import { useSelector } from 'react-redux';
 
-export default class Comments extends Component {
-  state = {
-    comments: [],
-    isFetching: true,
+export const CommentContext = createContext({});
+
+const Comments = ({ itemId, commentsCount }) => {
+  const { isLoggedIn } = useSelector((state) => state.auth);
+  const [replying, setReplying] = useState([]);
+  const [fetchedComments, setFetchedComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [commentsReloading, setCommentsReloading] = useState(true);
+
+  useEffect(() => {
+    const unflatten = (data) => {
+      const tree = data
+        .map((e) => ({ ...e }))
+        .sort((a, b) => a.comment_id - b.comment_id)
+        .reduce((a, e) => {
+          a[e.comment_id] = a[e.comment_id] || e;
+          a[e.parentCommentId] = a[e.parentCommentId] || {};
+          const parent = a[e.parentCommentId];
+          parent.comments = parent.comments || [];
+          parent.comments.push(e);
+
+          return a;
+        }, {});
+      return Object.values(tree).find((e) => e.comment_id === undefined)
+        .comments;
+    };
+
+    const fetchComments = () => {
+      CommentService.getComments(itemId).then(
+        (data) => {
+          setFetchedComments(unflatten(data.comments));
+          setLoading(false);
+        },
+        (error) => {
+          console.log(error.response);
+        }
+      );
+    };
+
+    fetchComments();
+  }, [commentsReloading]);
+
+  const handleCommentsReloading = () => {
+    setCommentsReloading(!commentsReloading);
   };
 
-  async fetchData(url) {
-    const response = await fetch(url);
-    let data = await response.json();
-    return data;
-  }
-
-  componentDidMount() {
-    const url = 'https://jsonplaceholder.typicode.com/posts/1/comments';
-    let data = this.fetchData(url);
-    data.then((comments) => {
-      let commentList = comments.slice(0, 10);
-      this.setState(
-        {
-          comments: commentList,
-          isFetching: false,
-        },
-        () => console.log('New State', this.state.comments)
-      );
-    });
-  }
-
-  render() {
-    const { comments, isFetching } = this.state;
-    return (
-      <div>
-        <Typography id='comments' variant='h5' component='h3' gutterBottom>
-          Komentarze
+  return (
+    <Paper id='comments' elevation={0}>
+      <Typography variant='h6' gutterBottom component='h4'>
+        Komentarze ({commentsCount})
+      </Typography>
+      {isLoggedIn ? (
+        <AddCommentForm
+          commentsReloading={handleCommentsReloading}
+          itemId={itemId}
+          parentCommentId={null}
+        />
+      ) : (
+        <Typography variant='subtitle1' gutterBottom>
+          Zaloguj się aby dodawać komentarze
         </Typography>
-        {isFetching ? <p>'Loading...'</p> : <Comment comments={comments} />}
-      </div>
-    );
-  }
-}
+      )}
+
+      {loading ? (
+        'Loading...'
+      ) : (
+        <CommentContext.Provider value={[replying, setReplying]}>
+          {fetchedComments.map((comment, i) => {
+            return (
+              <Comment
+                commentsReloading={handleCommentsReloading}
+                parentCommentId={comment.parentCommentId}
+                itemId={comment.itemId}
+                comment_id={comment.comment_id}
+                username={comment.userName}
+                date={comment.createdAt}
+                text={comment.commentBody}
+                votes={comment.votes}
+                colorindex={0}
+                key={i}
+                path={[...[], i]}
+                comments={comment.comments}
+              />
+            );
+          })}
+        </CommentContext.Provider>
+      )}
+    </Paper>
+  );
+};
+
+export default Comments;

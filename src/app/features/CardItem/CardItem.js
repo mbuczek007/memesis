@@ -13,6 +13,11 @@ import moment from 'moment';
 import 'moment/locale/pl';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import ItemService from '../../../services/item.service';
+import ReactFBLike from 'react-fb-like';
+import {
+  FacebookMessengerShareButton,
+  FacebookMessengerIcon,
+} from 'react-share';
 
 const CardItem = ({ item, linked, loading }) => {
   moment.locale('pl');
@@ -20,10 +25,15 @@ const CardItem = ({ item, linked, loading }) => {
   const [votesCount, setVotesCount] = useState(0);
   const [voteMessage, setVoteMessage] = useState('');
   const [voteMessageSuccess, setVoteMessageSuccess] = useState(false);
-
   useEffect(() => {
     setVotes(item ? item.votes : 0);
     setVotesCount(item ? item.votesCount : 0);
+  }, [item]);
+
+  useEffect(() => {
+    if (window.FB) {
+      window.FB.XFBML.parse();
+    }
   }, [item]);
 
   const handleVoteClick = (mode) => {
@@ -91,6 +101,22 @@ const CardItem = ({ item, linked, loading }) => {
               Źródło: {item.source}
             </Source>
           )}
+
+          <FacebookActions>
+            <ReactFBLike
+              language='pl_PL'
+              appId='358432648571666'
+              version='v2.12'
+              layout='button_count'
+              href={`https://jbzd.com.pl/obr/1721666/pogromcy-mitow/${item.id}`}
+            />
+            <FacebookMessengerShareButton
+              url='https://jbzd.com.pl/obr/1721666/pogromcy-mitow'
+              appId='358432648571666'
+            >
+              <FacebookMessengerIcon size={22} round />
+            </FacebookMessengerShareButton>
+          </FacebookActions>
         </>
       )}
       <ItemMeta>
@@ -271,6 +297,13 @@ const VoteStatus = styled.div`
 const VotingSkeletonButtton = styled(Skeleton)`
   display: inline-block;
   margin: 4px;
+`;
+
+const FacebookActions = styled.div`
+  text-align: center;
+  position: relative;
+  margin-top: 12px;
+  margin-bottom: -10px;
 `;
 
 export default CardItem;

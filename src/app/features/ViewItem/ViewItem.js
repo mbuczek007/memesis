@@ -47,7 +47,10 @@ const ViewItem = () => {
         <>
           <PageTitle title={vievedItem.data.title} />
           <CardItem item={vievedItem.data} linked={false} loading={false} />
-          <Comments />
+          <Comments
+            itemId={vievedItem.data.id}
+            commentsCount={vievedItem.data.commentsCount}
+          />
         </>
       )}
     </StyledGridItem>
