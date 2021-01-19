@@ -1,79 +1,119 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { useSelector } from 'react-redux';
 import CommentService from '../../../services/comment.service';
+import Alert from '@material-ui/lab/Alert';
+import Typography from '@material-ui/core/Typography';
 
-function AddCommentForm(props) {
+const AddCommentForm = ({
+  itemId,
+  parentCommentId,
+  replyUserName,
+  commentsReloading,
+  handleCancelClick,
+}) => {
   const { user } = useSelector((state) => state.auth);
-  const [text, setText] = useState('');
+  const [text, setText] = useState(replyUserName ? '@' + replyUserName : '');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setMessage] = useState('');
+  const inputRef = useRef(null);
 
-  const handleSubmitComment = () => {
+  useEffect(() => {
+    inputRef.current.selectionStart = inputRef.current.value.length;
+    inputRef.current.selectionEnd = inputRef.current.value.length;
+  }, []);
+
+  const handleSubmitComment = (e) => {
+    e.preventDefault();
+
+    setIsLoading(true);
+    setMessage('');
+
     CommentService.createComment(
       user.userData.id,
-      props.itemId,
+      itemId,
       text,
-      props.parentCommentId,
+      parentCommentId,
       user.token
     ).then(
       (data) => {
-        console.log(data);
-        props.commentsReloading();
         setText('');
+        setIsLoading(false);
+        commentsReloading(data.newCommentId);
       },
       (error) => {
-        console.log(error.response);
+        setIsLoading(false);
+        setMessage(error.response.data.error);
       }
     );
   };
 
   return (
-    <div {...props}>
-      <TextField
-        id='outlined-multiline-static'
-        label='Dodaj komentarz'
-        multiline
-        fullWidth
-        rows={4}
-        variant='outlined'
-        value={text}
-        onChange={(value) => {
-          setText(value.target.value);
-        }}
-      />
-      <div className='panel'>
-        <div className='comment_as'>
-          Komentujesz jako <strong>{user.userData.name}</strong>
-        </div>
-        <Button
-          variant='contained'
-          color='primary'
-          disableElevation
-          onClick={handleSubmitComment}
-        >
-          Wyślij
-        </Button>
-      </div>
-    </div>
+    <AddCommentWrapper>
+      {errorMessage && (
+        <Alert variant='outlined' severity='error'>
+          {errorMessage}
+        </Alert>
+      )}
+      <form onSubmit={handleSubmitComment}>
+        <TextField
+          inputRef={inputRef}
+          required
+          id='outlined-multiline-static'
+          label='Dodaj komentarz'
+          autoFocus={parentCommentId !== null}
+          multiline
+          fullWidth
+          rows={4}
+          variant='outlined'
+          value={text}
+          onChange={(value) => {
+            setText(value.target.value);
+          }}
+        />
+        <AddCommentActions>
+          <CommentUserInfo variant='body2'>
+            Komentujesz jako <span>{user.userData.name}</span>
+          </CommentUserInfo>
+          <div>
+            <Button
+              variant='contained'
+              color='primary'
+              disableElevation
+              type='submit'
+            >
+              Wyślij
+            </Button>
+            {parentCommentId !== null && (
+              <Button onClick={handleCancelClick}>Anuluj</Button>
+            )}
+          </div>
+        </AddCommentActions>
+      </form>
+    </AddCommentWrapper>
   );
-}
+};
 
-export default AddCommentForm = styled(AddCommentForm)`
-  .panel {
-    display: flex;
-    align-items: center;
-    padding: 8px;
+const AddCommentWrapper = styled.div`
+  margin-top: 15px;
+  margin-bottom: 15px;
+`;
 
-    .comment_as {
-      font-size: 14px;
-      color: 000;
-      margin-right: 8px;
+const AddCommentActions = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  padding: 0 15px;
+`;
 
-      .username {
-        display: inline-block;
-        color: #000;
-      }
-    }
+const CommentUserInfo = styled(Typography)`
+  span {
+    font-weight: 700;
   }
 `;
+
+export default AddCommentForm;

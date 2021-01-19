@@ -1,84 +1,65 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import IconButton from '@material-ui/core/IconButton';
+import AddBoxIcon from '@material-ui/icons/AddBox';
+import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
 
-function RatingComment(props) {
-  const [count, setCount] = useState(props.votes);
-  const [thumbsUp, setThumbsUp] = useState(false);
-  const [thumbsDown, setThumbsDown] = useState(false);
+const RatingComment = ({ votes, votesCount }) => {
+  const [commentVotes, setCommentVotes] = useState(votes);
+  const [commentVotesCount, setCommentVotesCount] = useState(votesCount);
+
+  const handleVoteClick = (mode) => {
+    let count = 0;
+
+    if (mode === 'up') {
+      count = 1;
+    } else if (mode === 'down') {
+      count = -1;
+    }
+
+    setCommentVotes(votes + count);
+    setCommentVotesCount(votesCount + 1);
+  };
 
   return (
-    <div {...props}>
-      <button
-        className={`material-icons ${thumbsUp ? 'selected' : ''}`}
-        id='thumbs_up'
-        onClick={() => {
-          setThumbsUp(!thumbsUp);
-          setThumbsDown(false);
-        }}
-      >
-        keyboard_arrow_up
-      </button>
-      <div
-        className={`count ${thumbsUp ? 'up' : ''} ${thumbsDown ? 'down' : ''}`}
-      >
-        {thumbsUp ? count + 1 : ''}
-        {thumbsDown ? count - 1 : ''}
-        {thumbsUp || thumbsDown ? '' : count}
-      </div>
-      <button
-        className={`material-icons ${thumbsDown ? 'selected' : ''}`}
-        id='thumbs_down'
-        onClick={() => {
-          setThumbsDown(!thumbsDown);
-          setThumbsUp(false);
-        }}
-      >
-        keyboard_arrow_down
-      </button>
-    </div>
+    <VotingWrapper>
+      <VotingIcon voteaction='plus' onClick={() => handleVoteClick('up')}>
+        <AddBoxIcon fontSize='small' />
+      </VotingIcon>
+      <VotesStatus>
+        {commentVotes > 0 ? '+' + commentVotes : commentVotes}
+        <span>({commentVotesCount})</span>
+      </VotesStatus>
+      <VotingIcon voteaction='down' onClick={() => handleVoteClick('down')}>
+        <IndeterminateCheckBoxIcon fontSize='small' />
+      </VotingIcon>
+    </VotingWrapper>
   );
-}
+};
 
-export default RatingComment = styled(RatingComment)`
+const VotingIcon = styled(IconButton)`
+  padding: 0;
+
+  ${({ voteaction, theme }) =>
+    voteaction &&
+    `
+    color: ${voteaction === 'plus' ? `#4caf50` : theme.palette.secondary.main};
+
+  `}
+`;
+
+const VotingWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  margin-right: 12px;
+  margin-top: 6px;
+`;
 
-  .count {
-    font-weight: bold;
-    text-align: center;
-    color: #3d4953;
+const VotesStatus = styled.div`
+  margin: 0 2px;
 
-    &.up {
-      color: #4f9eed;
-    }
-
-    &.down {
-      color: #ed4f4f;
-    }
-  }
-
-  button#thumbs_up,
-  button#thumbs_down {
-    border: none;
-    background: none;
-    cursor: pointer;
-    color: #3d4953;
-
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome and Opera */
-  }
-
-  #thumbs_up.selected {
-    color: #4f9eed;
-  }
-
-  #thumbs_down.selected {
-    color: #ed4f4f;
+  span {
+    padding-left: 2px;
+    color: #a5a5a5;
   }
 `;
+
+export default RatingComment;

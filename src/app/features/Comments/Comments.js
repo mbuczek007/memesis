@@ -5,6 +5,8 @@ import AddCommentForm from './AddCommentForm';
 import Comment from './Comment';
 import CommentService from '../../../services/comment.service';
 import { useSelector } from 'react-redux';
+import styled from 'styled-components';
+import List from '@material-ui/core/List';
 
 export const CommentContext = createContext({});
 
@@ -13,7 +15,7 @@ const Comments = ({ itemId, commentsCount }) => {
   const [replying, setReplying] = useState([]);
   const [fetchedComments, setFetchedComments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [commentsReloading, setCommentsReloading] = useState(true);
+  const [commentsReloading, setCommentsReloading] = useState(0);
 
   useEffect(() => {
     const unflatten = (data) => {
@@ -38,6 +40,12 @@ const Comments = ({ itemId, commentsCount }) => {
         (data) => {
           setFetchedComments(unflatten(data.comments));
           setLoading(false);
+
+          if (commentsReloading !== 0) {
+            document
+              .getElementById(commentsReloading)
+              .scrollIntoView({ behavior: 'smooth' });
+          }
         },
         (error) => {
           console.log(error.response);
@@ -46,14 +54,14 @@ const Comments = ({ itemId, commentsCount }) => {
     };
 
     fetchComments();
-  }, [commentsReloading]);
+  }, [commentsReloading, itemId]);
 
-  const handleCommentsReloading = () => {
-    setCommentsReloading(!commentsReloading);
+  const handleCommentsReloading = (newCommentId) => {
+    setCommentsReloading(newCommentId);
   };
 
   return (
-    <Paper id='comments' elevation={0}>
+    <StyledPaper id='comments' elevation={0}>
       <Typography variant='h6' gutterBottom component='h4'>
         Komentarze ({commentsCount})
       </Typography>
@@ -68,33 +76,39 @@ const Comments = ({ itemId, commentsCount }) => {
           Zaloguj się aby dodawać komentarze
         </Typography>
       )}
-
       {loading ? (
         'Loading...'
       ) : (
         <CommentContext.Provider value={[replying, setReplying]}>
-          {fetchedComments.map((comment, i) => {
-            return (
-              <Comment
-                commentsReloading={handleCommentsReloading}
-                parentCommentId={comment.parentCommentId}
-                itemId={comment.itemId}
-                comment_id={comment.comment_id}
-                username={comment.userName}
-                date={comment.createdAt}
-                text={comment.commentBody}
-                votes={comment.votes}
-                colorindex={0}
-                key={i}
-                path={[...[], i]}
-                comments={comment.comments}
-              />
-            );
-          })}
+          <List>
+            {fetchedComments.map((comment, i) => {
+              return (
+                <Comment
+                  commentsReloading={handleCommentsReloading}
+                  parentCommentId={comment.parentCommentId}
+                  itemId={comment.itemId}
+                  comment_id={comment.comment_id}
+                  username={comment.userName}
+                  date={comment.createdAt}
+                  text={comment.commentBody}
+                  votes={comment.votes}
+                  votesCount={comment.votesCount}
+                  colorindex={0}
+                  key={i}
+                  path={[...[], i]}
+                  comments={comment.comments}
+                />
+              );
+            })}
+          </List>
         </CommentContext.Provider>
       )}
-    </Paper>
+    </StyledPaper>
   );
 };
+
+const StyledPaper = styled(Paper)`
+  padding: 15px;
+`;
 
 export default Comments;
