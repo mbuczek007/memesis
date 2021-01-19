@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -6,30 +6,24 @@ import { useSelector } from 'react-redux';
 import CommentService from '../../../services/comment.service';
 import Alert from '@material-ui/lab/Alert';
 import Typography from '@material-ui/core/Typography';
+import ButtonLoading from '../../shared/ButtonLoading/ButtonLoading';
 
 const AddCommentForm = ({
   itemId,
   parentCommentId,
-  replyUserName,
   commentsReloading,
   handleCancelClick,
 }) => {
   const { user } = useSelector((state) => state.auth);
-  const [text, setText] = useState(replyUserName ? '@' + replyUserName : '');
+  const [text, setText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setMessage] = useState('');
-  const inputRef = useRef(null);
-
-  useEffect(() => {
-    inputRef.current.selectionStart = inputRef.current.value.length;
-    inputRef.current.selectionEnd = inputRef.current.value.length;
-  }, []);
+  const [errorMessage, setMessage] = useState(null);
 
   const handleSubmitComment = (e) => {
     e.preventDefault();
 
     setIsLoading(true);
-    setMessage('');
+    setMessage(null);
 
     CommentService.createComment(
       user.userData.id,
@@ -53,13 +47,12 @@ const AddCommentForm = ({
   return (
     <AddCommentWrapper>
       {errorMessage && (
-        <Alert variant='outlined' severity='error'>
+        <StyledAlert variant='outlined' severity='error'>
           {errorMessage}
-        </Alert>
+        </StyledAlert>
       )}
       <form onSubmit={handleSubmitComment}>
         <TextField
-          inputRef={inputRef}
           required
           id='outlined-multiline-static'
           label='Dodaj komentarz'
@@ -69,27 +62,27 @@ const AddCommentForm = ({
           rows={4}
           variant='outlined'
           value={text}
-          onChange={(value) => {
-            setText(value.target.value);
+          disabled={isLoading}
+          onChange={(e) => {
+            setText(e.target.value);
           }}
         />
         <AddCommentActions>
           <CommentUserInfo variant='body2'>
             Komentujesz jako <span>{user.userData.name}</span>
           </CommentUserInfo>
-          <div>
-            <Button
-              variant='contained'
-              color='primary'
-              disableElevation
-              type='submit'
-            >
-              Wyślij
-            </Button>
+          <ButtonWrapper>
+            <ButtonLoading
+              ctaText='Wyślij'
+              loading={isLoading}
+              isDisabled={false}
+            />
             {parentCommentId !== null && (
-              <Button onClick={handleCancelClick}>Anuluj</Button>
+              <Button disabled={isLoading} onClick={handleCancelClick}>
+                Anuluj
+              </Button>
             )}
-          </div>
+          </ButtonWrapper>
         </AddCommentActions>
       </form>
     </AddCommentWrapper>
@@ -114,6 +107,23 @@ const CommentUserInfo = styled(Typography)`
   span {
     font-weight: 700;
   }
+`;
+
+const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+
+  button {
+    margin: 0;
+  }
+
+  > button {
+    margin-left: 10px;
+  }
+`;
+
+const StyledAlert = styled(Alert)`
+  margin-bottom: 15px;
 `;
 
 export default AddCommentForm;

@@ -23,21 +23,20 @@ const CardItem = ({ item, linked, loading }) => {
   moment.locale('pl');
   const [votes, setVotes] = useState(0);
   const [votesCount, setVotesCount] = useState(0);
-  const [voteMessage, setVoteMessage] = useState('');
+  const [voteMessage, setVoteMessage] = useState(null);
   const [voteMessageSuccess, setVoteMessageSuccess] = useState(false);
-  useEffect(() => {
-    setVotes(item ? item.votes : 0);
-    setVotesCount(item ? item.votesCount : 0);
-  }, [item]);
 
   useEffect(() => {
     if (window.FB) {
       window.FB.XFBML.parse();
     }
+
+    setVotes(item && item.votes);
+    setVotesCount(item && item.votesCount);
   }, [item]);
 
   const handleVoteClick = (mode) => {
-    setVoteMessage('');
+    setVoteMessage(null);
 
     ItemService.itemVote(item.id, mode).then(
       (response) => {
@@ -101,22 +100,23 @@ const CardItem = ({ item, linked, loading }) => {
               Źródło: {item.source}
             </Source>
           )}
-
-          <FacebookActions>
-            <ReactFBLike
-              language='pl_PL'
-              appId='358432648571666'
-              version='v2.12'
-              layout='button_count'
-              href={`https://jbzd.com.pl/obr/1721666/pogromcy-mitow/${item.id}`}
-            />
-            <FacebookMessengerShareButton
-              url='https://jbzd.com.pl/obr/1721666/pogromcy-mitow'
-              appId='358432648571666'
-            >
-              <FacebookMessengerIcon size={22} round />
-            </FacebookMessengerShareButton>
-          </FacebookActions>
+          {item.isAccepted && (
+            <FacebookActions>
+              <ReactFBLike
+                language='pl_PL'
+                appId='358432648571666'
+                version='v2.12'
+                layout='button_count'
+                href={`https://jbzd.com.pl/obr/1721666/pogromcy-mitow/${item.id}`}
+              />
+              <FacebookMessengerShareButton
+                url='https://jbzd.com.pl/obr/1721666/pogromcy-mitow'
+                appId='358432648571666'
+              >
+                <FacebookMessengerIcon size={22} round />
+              </FacebookMessengerShareButton>
+            </FacebookActions>
+          )}
         </>
       )}
       <ItemMeta>
@@ -166,13 +166,13 @@ const CardItem = ({ item, linked, loading }) => {
               </VoteStatus>
               <VotingIcon
                 voteaction='plus'
-                onClick={(e) => handleVoteClick('up')}
+                onClick={() => handleVoteClick('up')}
               >
                 <AddBoxIcon fontSize='large' />
               </VotingIcon>
               <VotingIcon
                 voteaction='down'
-                onClick={(e) => handleVoteClick('down')}
+                onClick={() => handleVoteClick('down')}
               >
                 <IndeterminateCheckBoxIcon fontSize='large' />
               </VotingIcon>

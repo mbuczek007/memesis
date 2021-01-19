@@ -14,20 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import Link from '@material-ui/core/Link';
 
-const Comment = ({
-  path,
-  commentsReloading,
-  parentCommentId,
-  comment_id,
-  username,
-  date,
-  text,
-  votes,
-  votesCount,
-  comments,
-  itemId,
-  colorindex,
-}) => {
+const Comment = ({ comment, commentsReloading, colorindex, path }) => {
   const { isLoggedIn } = useSelector((state) => state.auth);
   const [replying, setReplying] = useContext(CommentContext);
   const [showReply, setShowReply] = useState(false);
@@ -43,35 +30,35 @@ const Comment = ({
   };
 
   const handleCancelReply = () => {
-    if (compare(replying, path)) {
-      setReplying([]);
-    } else {
-      setReplying(path);
-    }
+    return compare(replying, path) ? setReplying([]) : setReplying(path);
   };
 
   return (
-    <StyledListItem isFirstLevel={parentCommentId}>
-      <ScrollCommentAnchor id={comment_id}></ScrollCommentAnchor>
+    <StyledListItem isfirstlevel={comment.parentCommentId}>
+      <ScrollCommentAnchor id={comment.comment_id}></ScrollCommentAnchor>
       <ListItemText
         primary={
           <>
-            <UserName component='span' variant='subtitle'>
-              {username}
+            <UserName component='span' variant='subtitle1'>
+              {comment.userName}
             </UserName>
             <StyledDate component='span' variant='body2'>
               <ScheduleIcon style={{ fontSize: 12 }} />
-              {moment(date).fromNow()}
+              {moment(comment.createdAt).fromNow()}
             </StyledDate>
           </>
         }
-        secondary={text}
+        secondary={comment.commentBody}
       />
-      <RatingComment votes={votes} votesCount={votesCount} />
+      <RatingComment
+        commentId={comment.comment_id}
+        votes={comment.votes}
+        votesCount={comment.votesCount}
+      />
       <CommentActions>
-        {comments && (
+        {comment.comments && (
           <ActionLinkReply
-            isShowReply={showReply}
+            isshowreply={showReply ? 1 : 0}
             component='button'
             variant='body1'
             onClick={() => {
@@ -81,19 +68,19 @@ const Comment = ({
             {!showReply ? (
               <>
                 <KeyboardArrowDownIcon />
-                Pokaz odpowiedzi ({comments.length})
+                Pokaz odpowiedzi ({comment.comments.length})
               </>
             ) : (
               <>
                 <KeyboardArrowUpIcon />
-                Ukryj odpowiedzi ({comments.length})
+                Ukryj odpowiedzi ({comment.comments.length})
               </>
             )}
           </ActionLinkReply>
         )}
         {isLoggedIn && (
           <>
-            {!compare(replying, path) && (
+            {!compare(replying, path) ? (
               <ActionLink
                 component='button'
                 variant='body1'
@@ -101,37 +88,27 @@ const Comment = ({
               >
                 Odpowiedz
               </ActionLink>
-            )}
-            {compare(replying, path) && (
+            ) : (
               <AddCommentForm
+                itemId={comment.itemId}
+                parentCommentId={comment.comment_id}
                 commentsReloading={handleCommentsReloading}
-                itemId={itemId}
-                parentCommentId={comment_id}
-                replyUserName={username}
                 handleCancelClick={handleCancelReply}
               />
             )}
           </>
         )}
       </CommentActions>
-      {comments && showReply && (
+      {comment.comments && showReply && (
         <StyledList>
-          {comments.map((comment, i) => {
+          {comment.comments.map((comment, i) => {
             return (
               <Comment
-                commentsReloading={commentsReloading}
-                parentCommentId={comment.parentCommentId}
-                itemId={comment.itemId}
-                comment_id={comment.comment_id}
-                username={comment.userName}
-                date={comment.createdAt}
-                text={comment.commentBody}
-                votes={comment.votes}
-                votesCount={comment.votesCount}
-                colorindex={colorindex + 1}
                 key={i}
+                comment={comment}
+                commentsReloading={commentsReloading}
+                colorindex={colorindex + 1}
                 path={[...[...path], i]}
-                comments={comment.comments}
               />
             );
           })}
@@ -153,8 +130,8 @@ const StyledListItem = styled(ListItem)`
   padding-right: 0;
   border-top: 1px solid #ccc;
 
-  ${({ isFirstLevel }) =>
-    isFirstLevel &&
+  ${({ isfirstlevel }) =>
+    isfirstlevel &&
     `
       padding-left: 20px;
 
@@ -209,8 +186,8 @@ const ActionLink = styled(Link)`
 `;
 
 const ActionLinkReply = styled(ActionLink)`
-  ${({ isShowReply }) =>
-    isShowReply &&
+  ${({ isshowreply }) =>
+    isshowreply &&
     `
       font-weight: 700;
 

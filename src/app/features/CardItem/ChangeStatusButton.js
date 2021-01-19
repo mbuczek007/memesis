@@ -42,7 +42,7 @@ const ChangeStatusButton = ({
         onClick={() => {
           handleClick(!isAccepted);
         }}
-        accepted={isAccepted}
+        accepted={isAccepted ? 1 : 0}
       >
         {isAccepted ? '[ Usuń z głównej ]' : '[ Dodaj na główną ]'}
       </StyledButton>

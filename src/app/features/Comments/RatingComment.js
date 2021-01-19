@@ -3,10 +3,16 @@ import styled from 'styled-components';
 import IconButton from '@material-ui/core/IconButton';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
+import CommentService from '../../../services/comment.service';
+import { useSelector } from 'react-redux';
 
-const RatingComment = ({ votes, votesCount }) => {
+const RatingComment = ({ commentId, votes, votesCount }) => {
+  const { user } = useSelector((state) => state.auth);
   const [commentVotes, setCommentVotes] = useState(votes);
   const [commentVotesCount, setCommentVotesCount] = useState(votesCount);
+
+  const userId = user ? user.userData.id : null;
+  const authToken = user ? user.token : null;
 
   const handleVoteClick = (mode) => {
     let count = 0;
@@ -17,8 +23,25 @@ const RatingComment = ({ votes, votesCount }) => {
       count = -1;
     }
 
-    setCommentVotes(votes + count);
-    setCommentVotesCount(votesCount + 1);
+    CommentService.commentVote(commentId, mode, userId, authToken).then(
+      (response) => {
+        let count = 0;
+
+        if (mode === 'up') {
+          count = 1;
+        } else if (mode === 'down') {
+          count = -1;
+        }
+
+        setCommentVotes(votes + count);
+        setCommentVotesCount(votesCount + 1);
+
+        console.log(response);
+      },
+      (error) => {
+        console.log(error.response);
+      }
+    );
   };
 
   return (

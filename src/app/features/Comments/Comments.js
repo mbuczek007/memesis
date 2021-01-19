@@ -12,9 +12,9 @@ export const CommentContext = createContext({});
 
 const Comments = ({ itemId, commentsCount }) => {
   const { isLoggedIn } = useSelector((state) => state.auth);
-  const [replying, setReplying] = useState([]);
-  const [fetchedComments, setFetchedComments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchedComments, setFetchedComments] = useState([]);
+  const [replying, setReplying] = useState([]);
   const [commentsReloading, setCommentsReloading] = useState(0);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const Comments = ({ itemId, commentsCount }) => {
           setFetchedComments(unflatten(data.comments));
           setLoading(false);
 
-          if (commentsReloading !== 0) {
+          if (commentsReloading > 0) {
             document
               .getElementById(commentsReloading)
               .scrollIntoView({ behavior: 'smooth' });
@@ -49,6 +49,7 @@ const Comments = ({ itemId, commentsCount }) => {
         },
         (error) => {
           console.log(error.response);
+          setLoading(false);
         }
       );
     };
@@ -65,16 +66,17 @@ const Comments = ({ itemId, commentsCount }) => {
       <Typography variant='h6' gutterBottom component='h4'>
         Komentarze ({commentsCount})
       </Typography>
-      {isLoggedIn ? (
-        <AddCommentForm
-          commentsReloading={handleCommentsReloading}
-          itemId={itemId}
-          parentCommentId={null}
-        />
-      ) : (
+      {!isLoggedIn ? (
         <Typography variant='subtitle1' gutterBottom>
           Zaloguj się aby dodawać komentarze
         </Typography>
+      ) : (
+        <AddCommentForm
+          itemId={itemId}
+          parentCommentId={null}
+          commentsReloading={handleCommentsReloading}
+          handleCancelClick={false}
+        />
       )}
       {loading ? (
         'Loading...'
@@ -84,19 +86,11 @@ const Comments = ({ itemId, commentsCount }) => {
             {fetchedComments.map((comment, i) => {
               return (
                 <Comment
-                  commentsReloading={handleCommentsReloading}
-                  parentCommentId={comment.parentCommentId}
-                  itemId={comment.itemId}
-                  comment_id={comment.comment_id}
-                  username={comment.userName}
-                  date={comment.createdAt}
-                  text={comment.commentBody}
-                  votes={comment.votes}
-                  votesCount={comment.votesCount}
-                  colorindex={0}
                   key={i}
+                  comment={comment}
+                  commentsReloading={handleCommentsReloading}
+                  colorindex={0}
                   path={[...[], i]}
-                  comments={comment.comments}
                 />
               );
             })}

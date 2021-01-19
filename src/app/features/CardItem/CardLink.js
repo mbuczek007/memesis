@@ -13,7 +13,7 @@ const CardLInk = ({ children, linked, itemId, commentsMode }) => {
       underline='none'
       component={RouterLink}
       to={`/view/${itemId}${commentsMode ? '#comments' : ''}`}
-      comments={commentsMode}
+      comments={commentsMode ? 1 : 0}
     >
       {children}
     </StyledLink>

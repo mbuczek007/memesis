@@ -26,6 +26,20 @@ const createComment = (
     });
 };
 
+const commentVote = (commentId, voteValue, userId, authToken) => {
+  return axios
+    .post(
+      API_URL + 'comments/action/vote',
+      { commentId, voteValue, userId },
+      {
+        headers: { Authorization: `Bearer ${authToken}` },
+      }
+    )
+    .then((response) => {
+      return response.data;
+    });
+};
+
 const getComments = (itemId) => {
   return axios.get(API_URL + `comments/${itemId}`).then((response) => {
     return response.data;
@@ -34,6 +48,7 @@ const getComments = (itemId) => {
 
 const CommentsService = {
   createComment,
+  commentVote,
   getComments,
 };
 
