@@ -8,23 +8,32 @@ import { useSelector } from 'react-redux';
 
 const RatingComment = ({ commentId, votes, votesCount }) => {
   const { user } = useSelector((state) => state.auth);
-  const [commentVotes, setCommentVotes] = useState(votes);
-  const [commentVotesCount, setCommentVotesCount] = useState(votesCount);
-  const [commentVoteMessage, setCommentVoteMessage] = useState(null);
-  const [commentVoteSuccess, setCommentVoteSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
-
   const userId = user ? user.userData.id : null;
   const authToken = user ? user.token : null;
+  const [voteData, setVoteData] = useState({
+    votes: votes,
+    votesCount: votesCount,
+    message: null,
+    votedSuccess: false,
+    loading: false,
+  });
 
   const resetState = () => {
-    setCommentVoteMessage(null);
-    setCommentVoteSuccess(false);
-    setLoading(false);
+    setTimeout(() => {
+      setVoteData((prevState) => ({
+        ...prevState,
+        message: null,
+        votedSuccess: false,
+        loading: false,
+      }));
+    }, 1200);
   };
 
   const handleVoteClick = (mode) => {
-    setLoading(true);
+    setVoteData((prevState) => ({
+      ...prevState,
+      loading: true,
+    }));
 
     CommentService.commentVote(commentId, mode, userId, authToken).then(
       (response) => {
@@ -35,28 +44,28 @@ const RatingComment = ({ commentId, votes, votesCount }) => {
         } else if (mode === 'down') {
           count = -1;
         }
-        setCommentVotes(votes + count);
-        setCommentVotesCount(votesCount + 1);
 
-        setCommentVoteMessage(response.message);
-        setCommentVoteSuccess(true);
+        setVoteData((prevState) => ({
+          ...prevState,
+          votes: votes + count,
+          votesCount: votesCount + 1,
+          message: response.message,
+          votedSuccess: true,
+        }));
 
-        setTimeout(() => {
-          resetState();
-        }, 1000);
+        resetState();
       },
       (error) => {
-        if (error.response.status === 401) {
-          setCommentVoteMessage('Zaloguj się');
-        } else {
-          setCommentVoteMessage(error.response.data.error);
-        }
+        setVoteData((prevState) => ({
+          ...prevState,
+          message:
+            error.response.status === 401
+              ? 'Zaloguj się'
+              : error.response.data.error,
+          votedSuccess: false,
+        }));
 
-        setCommentVoteSuccess(false);
-
-        setTimeout(() => {
-          resetState();
-        }, 1200);
+        resetState();
       }
     );
   };
@@ -64,25 +73,25 @@ const RatingComment = ({ commentId, votes, votesCount }) => {
   return (
     <VotingWrapper>
       <VotingIcon
-        disabled={loading}
+        disabled={voteData.loading}
         voteaction='plus'
         onClick={() => handleVoteClick('up')}
       >
         <AddBoxIcon fontSize='small' />
       </VotingIcon>
       <VotesStatus>
-        {commentVotes > 0 ? '+' + commentVotes : commentVotes}
-        <span>({commentVotesCount})</span>
+        {voteData.votes > 0 ? '+' + voteData.votes : voteData.votes}
+        <span>({voteData.votesCount})</span>
       </VotesStatus>
       <VotingIcon
-        disabled={loading}
+        disabled={voteData.loading}
         voteaction='down'
         onClick={() => handleVoteClick('down')}
       >
         <IndeterminateCheckBoxIcon fontSize='small' />
       </VotingIcon>
-      <StyledVoteMessage issuccess={commentVoteSuccess ? 1 : 0}>
-        {commentVoteMessage}
+      <StyledVoteMessage issuccess={voteData.votedSuccess ? 1 : 0}>
+        {voteData.message}
       </StyledVoteMessage>
     </VotingWrapper>
   );
