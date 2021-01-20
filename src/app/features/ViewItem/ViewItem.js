@@ -7,6 +7,7 @@ import CardItem from '../CardItem/CardItem';
 import styled from 'styled-components';
 import ItemService from '../../../services/item.service';
 import Comments from '../Comments/Comments';
+import Typography from '@material-ui/core/Typography';
 
 const ViewItem = () => {
   let { itemId } = useParams();
@@ -47,10 +48,16 @@ const ViewItem = () => {
         <>
           <PageTitle title={vievedItem.data.title} />
           <CardItem item={vievedItem.data} linked={false} loading={false} />
-          <Comments
-            itemId={vievedItem.data.id}
-            commentsCount={vievedItem.data.commentsCount}
-          />
+          {!vievedItem.data.disableComments ? (
+            <Comments
+              itemId={vievedItem.data.id}
+              commentsCount={vievedItem.data.commentsCount}
+            />
+          ) : (
+            <Typography variant='h6' align='center' component='h4'>
+              Komentarze są wyłączone.
+            </Typography>
+          )}
         </>
       )}
     </StyledGridItem>

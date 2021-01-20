@@ -7,6 +7,7 @@ const createItem = (
   itemSubtitle,
   itemSource,
   itemMediaType,
+  disableComments,
   itemUserId,
   authToken
 ) => {
@@ -19,6 +20,7 @@ const createItem = (
         source: itemSource,
         mediaUrl: itemImageUrl,
         mediaType: itemMediaType,
+        disableComments,
         userId: itemUserId,
       },
       {

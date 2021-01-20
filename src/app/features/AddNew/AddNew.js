@@ -12,6 +12,8 @@ import { inputChangeHandler, convertToArray } from '../../utils/utils';
 import ItemService from '../../../services/item.service';
 import { clearMessage, setMessage } from '../../../store/reducers/messageSlice';
 import styled from 'styled-components';
+import Switch from '@material-ui/core/Switch';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 const AddNew = () => {
   const initialControls = {
@@ -77,10 +79,17 @@ const AddNew = () => {
     },
   };
 
+  const initialAdditionalSettings = {
+    disableComments: false,
+  };
+
   const dispatch = useDispatch();
   const { message } = useSelector((state) => state.message);
   const { isLoggedIn, user } = useSelector((state) => state.auth);
   const [controls, setControls] = useState(initialControls);
+  const [additionalSettings, setAdditionalSettings] = useState(
+    initialAdditionalSettings
+  );
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const formElementsArray = convertToArray(controls);
@@ -106,6 +115,7 @@ const AddNew = () => {
         controls.itemSubtitle.value,
         controls.itemSource.value,
         'url',
+        additionalSettings.disableComments,
         user.userData.id,
         user.token
       ).then(
@@ -114,6 +124,7 @@ const AddNew = () => {
           dispatch(setMessage({ message: data.message }));
           setLoading(false);
           setControls(initialControls);
+          setAdditionalSettings(initialAdditionalSettings);
         },
         (error) => {
           setIsSuccess(false);
@@ -191,6 +202,23 @@ const AddNew = () => {
           <form onSubmit={submitHandler}>
             <Grid container spacing={3}>
               {form}
+              <Grid item xs={12} sm={12}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={additionalSettings.disableComments}
+                      onChange={(e) => {
+                        setAdditionalSettings({
+                          ...additionalSettings,
+                          [e.target.name]: e.target.checked,
+                        });
+                      }}
+                      name='disableComments'
+                    />
+                  }
+                  label='Wyłącz komentowanie'
+                />
+              </Grid>
               <Grid item xs={12} md={3}>
                 <ButtonLoading
                   isDisabled={

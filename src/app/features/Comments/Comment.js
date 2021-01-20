@@ -13,8 +13,9 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import Link from '@material-ui/core/Link';
+import Avatar from '@material-ui/core/Avatar';
 
-const Comment = ({ comment, commentsReloading, colorindex, path }) => {
+const Comment = ({ comment, commentsReloading, path }) => {
   const { isLoggedIn } = useSelector((state) => state.auth);
   const [replying, setReplying] = useContext(CommentContext);
   const [showReply, setShowReply] = useState(false);
@@ -36,6 +37,7 @@ const Comment = ({ comment, commentsReloading, colorindex, path }) => {
   return (
     <StyledListItem isfirstlevel={comment.parentCommentId}>
       <ScrollCommentAnchor id={comment.comment_id}></ScrollCommentAnchor>
+      <StyledAvatar>{comment.userName.charAt(0)}</StyledAvatar>
       <ListItemText
         primary={
           <>
@@ -60,7 +62,8 @@ const Comment = ({ comment, commentsReloading, colorindex, path }) => {
           <ActionLinkReply
             isshowreply={showReply ? 1 : 0}
             component='button'
-            variant='body1'
+            variant='body2'
+            color='primary'
             onClick={() => {
               setShowReply(!showReply);
             }}
@@ -83,7 +86,8 @@ const Comment = ({ comment, commentsReloading, colorindex, path }) => {
             {!compare(replying, path) ? (
               <ActionLink
                 component='button'
-                variant='body1'
+                variant='body2'
+                color='primary'
                 onClick={handleCancelReply}
               >
                 Odpowiedz
@@ -107,7 +111,6 @@ const Comment = ({ comment, commentsReloading, colorindex, path }) => {
                 key={i}
                 comment={comment}
                 commentsReloading={commentsReloading}
-                colorindex={colorindex + 1}
                 path={[...[...path], i]}
               />
             );
@@ -129,6 +132,7 @@ const StyledListItem = styled(ListItem)`
   align-items: flex-start;
   padding-right: 0;
   border-top: 1px solid #ccc;
+  padding-top: 15px;
 
   ${({ isfirstlevel }) =>
     isfirstlevel &&
@@ -150,6 +154,7 @@ const StyledListItem = styled(ListItem)`
 
 const CommentActions = styled.div`
   flex-basis: 100%;
+  margin-left: 45px;
 `;
 
 const UserName = styled(Typography)`
@@ -173,7 +178,6 @@ const StyledList = styled(List)`
 `;
 
 const ActionLink = styled(Link)`
-  color: #575757;
   display: inline-flex;
   align-items: center;
   margin-right: 10px;
@@ -192,6 +196,10 @@ const ActionLinkReply = styled(ActionLink)`
       font-weight: 700;
 
   `}
+`;
+
+const StyledAvatar = styled(Avatar)`
+  margin-right: 10px;
 `;
 
 export default Comment;

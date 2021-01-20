@@ -7,6 +7,7 @@ import CommentService from '../../../services/comment.service';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import List from '@material-ui/core/List';
+import BestComment from './BestComment';
 
 export const CommentContext = createContext({});
 
@@ -81,21 +82,35 @@ const Comments = ({ itemId, commentsCount }) => {
       {loading ? (
         'Loading...'
       ) : (
-        <CommentContext.Provider value={[replying, setReplying]}>
-          <List>
-            {fetchedComments.map((comment, i) => {
-              return (
-                <Comment
-                  key={i}
-                  comment={comment}
-                  commentsReloading={handleCommentsReloading}
-                  colorindex={0}
-                  path={[...[], i]}
-                />
-              );
-            })}
-          </List>
-        </CommentContext.Provider>
+        <>
+          {fetchedComments.length !== 0 ? (
+            <CommentContext.Provider value={[replying, setReplying]}>
+              <BestComment
+                comments={fetchedComments}
+                commentsReloading={handleCommentsReloading}
+              />
+              <Typography variant='h6' gutterBottom component='h4'>
+                Wszystkie
+              </Typography>
+              <List>
+                {fetchedComments.map((comment, i) => {
+                  return (
+                    <Comment
+                      key={i}
+                      comment={comment}
+                      commentsReloading={handleCommentsReloading}
+                      path={[...[], i]}
+                    />
+                  );
+                })}
+              </List>
+            </CommentContext.Provider>
+          ) : (
+            <Typography variant='body2' align='center' component='h4'>
+              Brak komentarzy.
+            </Typography>
+          )}
+        </>
       )}
     </StyledPaper>
   );

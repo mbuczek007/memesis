@@ -127,17 +127,21 @@ const CardItem = ({ item, linked, loading }) => {
             <ScheduleIcon fontSize='small' />
             {moment(item.createdAt).fromNow()}
             <span> przez:</span> {item.userName} |
-            <CardLInk linked={linked} itemId={item.id} commentsMode>
-              <StyledBadge
-                badgeContent={
-                  item.commentsCount === 0 ? '0' : item.commentsCount
-                }
-                max={99}
-                color='secondary'
-              >
-                <CommentIcon fontSize='small' />
-              </StyledBadge>
-            </CardLInk>
+            {item.disableComments ? (
+              <DisabledCommentIcon fontSize='small' />
+            ) : (
+              <CardLInk linked={linked} itemId={item.id} commentsMode>
+                <StyledBadge
+                  badgeContent={
+                    item.commentsCount === 0 ? '0' : item.commentsCount
+                  }
+                  max={99}
+                  color='secondary'
+                >
+                  <StyledCommentIcon fontSize='small' />
+                </StyledBadge>
+              </CardLInk>
+            )}
           </DateInfoWrapper>
         )}
         <VotesActtionPanel>
@@ -249,8 +253,6 @@ const DateInfoWrapper = styled.div`
 `;
 
 const StyledBadge = styled(Badge)`
-  margin-left: 6px;
-
   .MuiBadge-badge {
     font-weight: 400;
     top: 1px;
@@ -258,6 +260,14 @@ const StyledBadge = styled(Badge)`
     font-weight: 400;
     padding: 0 4px;
   }
+`;
+
+const StyledCommentIcon = styled(CommentIcon)`
+  margin-left: 6px;
+`;
+
+const DisabledCommentIcon = styled(StyledCommentIcon)`
+  opacity: 0.5;
 `;
 
 const VotingIcon = styled(IconButton)`
