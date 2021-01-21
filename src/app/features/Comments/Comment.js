@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { CommentContext } from './Comments';
 import AddCommentForm from './AddCommentForm';
-import RatingComment from './RatingComment';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
@@ -14,6 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import ScheduleIcon from '@material-ui/icons/Schedule';
 import Link from '@material-ui/core/Link';
 import Avatar from '@material-ui/core/Avatar';
+import Rating from './../../shared/Rating/Rating';
 
 const Comment = ({ comment, commentsReloading, path }) => {
   const { isLoggedIn } = useSelector((state) => state.auth);
@@ -52,8 +52,9 @@ const Comment = ({ comment, commentsReloading, path }) => {
         }
         secondary={comment.commentBody}
       />
-      <RatingComment
-        commentId={comment.comment_id}
+      <Rating
+        ratingMode='comment'
+        ratedElemId={comment.comment_id}
         votes={comment.votes}
         votesCount={comment.votesCount}
       />
