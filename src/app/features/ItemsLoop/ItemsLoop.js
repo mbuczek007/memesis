@@ -44,7 +44,6 @@ const ItemsLoop = ({ mode }) => {
           setIsLoading(false);
         },
         (error) => {
-          console.log(error.response);
           setIsLoading(false);
         }
       );
