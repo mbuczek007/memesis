@@ -21,22 +21,43 @@ import {
 
 const CardItem = ({ item, linked, loading }) => {
   moment.locale('pl');
-  const [votes, setVotes] = useState(0);
-  const [votesCount, setVotesCount] = useState(0);
-  const [voteMessage, setVoteMessage] = useState(null);
-  const [voteMessageSuccess, setVoteMessageSuccess] = useState(false);
+
+  const [voteData, setVoteData] = useState({
+    votes: 0,
+    votesCount: 0,
+    message: null,
+    votedSuccess: false,
+    loading: false,
+  });
 
   useEffect(() => {
     if (window.FB) {
       window.FB.XFBML.parse();
     }
 
-    setVotes(item && item.votes);
-    setVotesCount(item && item.votesCount);
+    setVoteData((prevState) => ({
+      ...prevState,
+      votes: item && item.votes,
+      votesCount: item && item.votesCount,
+    }));
   }, [item]);
 
+  const resetState = () => {
+    setTimeout(() => {
+      setVoteData((prevState) => ({
+        ...prevState,
+        message: null,
+        votedSuccess: false,
+        loading: false,
+      }));
+    }, 1200);
+  };
+
   const handleVoteClick = (mode) => {
-    setVoteMessage(null);
+    setVoteData((prevState) => ({
+      ...prevState,
+      loading: true,
+    }));
 
     ItemService.itemVote(item.id, mode).then(
       (response) => {
@@ -48,14 +69,24 @@ const CardItem = ({ item, linked, loading }) => {
           count = -1;
         }
 
-        setVotes(item.votes + count);
-        setVotesCount(item.votesCount + 1);
-        setVoteMessage(response.message);
-        setVoteMessageSuccess(true);
+        setVoteData((prevState) => ({
+          ...prevState,
+          votes: item.votes + count,
+          votesCount: item.votesCount + 1,
+          message: response.message,
+          votedSuccess: true,
+        }));
+
+        resetState();
       },
       (error) => {
-        setVoteMessage(error.response.data.error);
-        setVoteMessageSuccess(false);
+        setVoteData((prevState) => ({
+          ...prevState,
+          message: error.response.data.error,
+          votedSuccess: false,
+        }));
+
+        resetState();
       }
     );
   };
@@ -166,22 +197,27 @@ const CardItem = ({ item, linked, loading }) => {
           ) : (
             <>
               <VoteStatus>
-                <span>{votes > 0 ? '+' + votes : votes}</span> / ({votesCount})
+                <span>
+                  {voteData.votes > 0 ? '+' + voteData.votes : voteData.votes}
+                </span>{' '}
+                / ({voteData.votesCount})
               </VoteStatus>
               <VotingIcon
                 voteaction='plus'
                 onClick={() => handleVoteClick('up')}
+                disabled={voteData.loading}
               >
                 <AddBoxIcon fontSize='large' />
               </VotingIcon>
               <VotingIcon
                 voteaction='down'
                 onClick={() => handleVoteClick('down')}
+                disabled={voteData.loading}
               >
                 <IndeterminateCheckBoxIcon fontSize='large' />
               </VotingIcon>
-              <StyledVoteMessage isSuccess={voteMessageSuccess}>
-                {voteMessage}
+              <StyledVoteMessage isSuccess={voteData.votedSuccess}>
+                {voteData.message}
               </StyledVoteMessage>
             </>
           )}

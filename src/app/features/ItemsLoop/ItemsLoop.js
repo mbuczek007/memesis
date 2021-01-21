@@ -4,11 +4,11 @@ import Grid from '@material-ui/core/Grid';
 import CardItem from '../CardItem/CardItem';
 import ReactPaginate from 'react-paginate';
 import { useHistory, useParams } from 'react-router-dom';
-import NotFound from '../NotFound/NotFound';
 import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
 import ItemService from '../../../services/item.service';
 import ChangeStatusButton from '../CardItem/ChangeStatusButton';
+import Typography from '@material-ui/core/Typography';
 
 const itemsPerPage = 3;
 
@@ -16,9 +16,8 @@ const ItemsLoop = ({ mode }) => {
   let history = useHistory();
   const { pageId } = useParams();
   const pageIdInt = parseInt(pageId);
-  const [notFound, setNotFound] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [items, setItems] = useState({});
+  const [items, setItems] = useState(null);
   const [removeAction, setRemoveAction] = useState(false);
 
   const [pagination, setPagination] = useState({
@@ -44,8 +43,9 @@ const ItemsLoop = ({ mode }) => {
           setItems(data.items);
           setIsLoading(false);
         },
-        () => {
-          setNotFound(true);
+        (error) => {
+          console.log(error.response);
+          setIsLoading(false);
         }
       );
     };
@@ -109,10 +109,6 @@ const ItemsLoop = ({ mode }) => {
     );
   };
 
-  if (notFound) {
-    return <NotFound />;
-  }
-
   return (
     <Grid item xs={12} sm={12} md={12}>
       {isLoading ? (
@@ -120,35 +116,43 @@ const ItemsLoop = ({ mode }) => {
       ) : (
         <>
           <PageTitle title={generatePageTitle()} />
-          {items.docs.map((item) => (
-            <React.Fragment key={item.id}>
-              {mode !== 'top' && (
-                <ChangeStatusButton
-                  itemId={item.id}
-                  isAccepted={item.isAccepted}
-                  itemFirstAcceptedDate={item.firstAcceptedDate}
-                  itemRemoved={handleRemoveItem}
+          {items ? (
+            <>
+              {items.docs.map((item) => (
+                <React.Fragment key={item.id}>
+                  {mode !== 'top' && (
+                    <ChangeStatusButton
+                      itemId={item.id}
+                      isAccepted={item.isAccepted}
+                      itemFirstAcceptedDate={item.firstAcceptedDate}
+                      itemRemoved={handleRemoveItem}
+                    />
+                  )}
+                  <CardItem item={item} linked={true} loading={false} />
+                </React.Fragment>
+              ))}
+              <StyledReactPaginate>
+                <ReactPaginate
+                  previousLabel={'wcześniejsza'}
+                  nextLabel={'następna'}
+                  breakLabel={'...'}
+                  breakClassName={'break-me'}
+                  pageCount={items.totalPages}
+                  marginPagesDisplayed={2}
+                  pageRangeDisplayed={2}
+                  onPageChange={handlePageClick}
+                  containerClassName={'pagination'}
+                  subContainerClassName={'pages pagination'}
+                  activeClassName={'active'}
+                  forcePage={pageIdInt ? pageIdInt - 1 : 0}
                 />
-              )}
-              <CardItem item={item} linked={true} loading={false} />
-            </React.Fragment>
-          ))}
-          <StyledReactPaginate>
-            <ReactPaginate
-              previousLabel={'wcześniejsza'}
-              nextLabel={'następna'}
-              breakLabel={'...'}
-              breakClassName={'break-me'}
-              pageCount={items.totalPages}
-              marginPagesDisplayed={2}
-              pageRangeDisplayed={2}
-              onPageChange={handlePageClick}
-              containerClassName={'pagination'}
-              subContainerClassName={'pages pagination'}
-              activeClassName={'active'}
-              forcePage={pageIdInt ? pageIdInt - 1 : 0}
-            />
-          </StyledReactPaginate>
+              </StyledReactPaginate>
+            </>
+          ) : (
+            <Typography variant='h6' align='center' component='h4'>
+              Brak treści do wyświetlenia.
+            </Typography>
+          )}
         </>
       )}
     </Grid>
