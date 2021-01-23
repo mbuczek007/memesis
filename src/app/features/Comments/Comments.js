@@ -48,8 +48,7 @@ const Comments = ({ itemId, commentsCount }) => {
               .scrollIntoView({ behavior: 'smooth' });
           }
         },
-        (error) => {
-          console.log(error.response);
+        () => {
           setLoading(false);
         }
       );

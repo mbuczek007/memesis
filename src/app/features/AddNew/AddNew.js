@@ -8,24 +8,24 @@ import TextField from '@material-ui/core/TextField';
 import Alert from '@material-ui/lab/Alert';
 import { DebounceInput } from 'react-debounce-input';
 import { useSelector, useDispatch } from 'react-redux';
-import { inputChangeHandler, convertToArray } from '../../utils/utils';
+import {
+  inputChangeHandler,
+  inputValueResetHandler,
+  convertToArray,
+} from '../../utils/utils';
 import ItemService from '../../../services/item.service';
 import { clearMessage, setMessage } from '../../../store/reducers/messageSlice';
 import styled from 'styled-components';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import MediaSource from './MediaSource';
 
 const AddNew = () => {
   const initialControls = {
-    itemImageUrl: {
-      elementType: 'input',
-      elementConfig: {
-        type: 'url',
-        placeholder: 'Media Url',
-      },
+    itemMedia: {
       validation: {
         required: true,
-        errorText: 'To nie jest url',
+        url: true,
       },
       value: '',
       valid: false,
@@ -81,6 +81,7 @@ const AddNew = () => {
 
   const initialAdditionalSettings = {
     disableComments: false,
+    mediaType: 'file',
   };
 
   const dispatch = useDispatch();
@@ -102,6 +103,29 @@ const AddNew = () => {
     return controls[element.id].valid;
   };
 
+  const handleChangeType = (type) => {
+    setAdditionalSettings({
+      ...additionalSettings,
+      mediaType: type,
+    });
+
+    inputValueResetHandler('', 'itemMedia', controls, setControls);
+  };
+
+  const handleChangeMediaValue = (value) => {
+    inputChangeHandler(value, 'itemMedia', controls, setControls);
+  };
+
+  const handleChangeValidSource = (value) => {
+    setControls({
+      ...controls,
+      itemMedia: {
+        ...controls.itemMedia,
+        valid: value,
+      },
+    });
+  };
+
   const submitHandler = (e) => {
     e.preventDefault();
 
@@ -110,11 +134,11 @@ const AddNew = () => {
       setLoading(true);
 
       ItemService.createItem(
-        controls.itemImageUrl.value,
+        controls.itemMedia.value,
         controls.itemTitle.value,
         controls.itemSubtitle.value,
         controls.itemSource.value,
-        'url',
+        additionalSettings.mediaType,
         additionalSettings.disableComments,
         user.userData.id,
         user.token
@@ -138,32 +162,41 @@ const AddNew = () => {
   const form = formElementsArray.map((formElement) => {
     return (
       <Grid key={formElement.id} item xs={12} sm={12}>
-        <DebounceInput
-          debounceTimeout={500}
-          element={TextField}
-          variant='outlined'
-          fullWidth
-          type={formElement.config.elementConfig.type}
-          label={formElement.config.elementConfig.placeholder}
-          helperText={
-            !formElement.config.valid && formElement.config.touched
-              ? formElement.config.validation.errorText
-              : ''
-          }
-          value={formElement.config.value}
-          onChange={(event) =>
-            inputChangeHandler(
-              event.target.value,
-              formElement.id,
-              controls,
-              setControls
-            )
-          }
-          error={!formElement.config.valid && formElement.config.touched}
-          required={formElement.config.validation.required}
-          multiline={false}
-          rows='4'
-        />
+        {formElement.id === 'itemMedia' ? (
+          <MediaSource
+            formElement={formElement}
+            changeMediaValue={handleChangeMediaValue}
+            changeType={handleChangeType}
+            changeValidSource={handleChangeValidSource}
+          />
+        ) : (
+          <DebounceInput
+            debounceTimeout={500}
+            element={TextField}
+            variant='outlined'
+            fullWidth
+            type={formElement.config.elementConfig.type}
+            label={formElement.config.elementConfig.placeholder}
+            helperText={
+              !formElement.config.valid && formElement.config.touched
+                ? formElement.config.validation.errorText
+                : ''
+            }
+            value={formElement.config.value}
+            onChange={(event) =>
+              inputChangeHandler(
+                event.target.value,
+                formElement.id,
+                controls,
+                setControls
+              )
+            }
+            error={!formElement.config.valid && formElement.config.touched}
+            required={formElement.config.validation.required}
+            multiline={false}
+            rows='4'
+          />
+        )}
       </Grid>
     );
   });

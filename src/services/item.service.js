@@ -2,7 +2,7 @@ import axios from 'axios';
 const API_URL = process.env.REACT_APP_API_URL;
 
 const createItem = (
-  itemImageUrl,
+  itemMedia,
   itemTitle,
   itemSubtitle,
   itemSource,
@@ -18,7 +18,7 @@ const createItem = (
         title: itemTitle,
         subtitle: itemSubtitle,
         source: itemSource,
-        mediaUrl: itemImageUrl,
+        mediaUrl: itemMedia,
         mediaType: itemMediaType,
         disableComments,
         userId: itemUserId,

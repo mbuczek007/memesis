@@ -15,6 +15,7 @@ import {
   FacebookMessengerIcon,
 } from 'react-share';
 import Rating from './../../shared/Rating/Rating';
+import YouTube from 'react-youtube';
 
 const CardItem = ({ item, linked, loading }) => {
   moment.locale('pl');
@@ -25,15 +26,31 @@ const CardItem = ({ item, linked, loading }) => {
     }
   }, [item]);
 
+  const ytOpts = {
+    height: '100%',
+    width: '100%',
+    playerVars: {
+      autoplay: 0,
+    },
+  };
+
   return (
     <ItemWrapper>
       <StyledMuiCard variant='outlined' square>
         {loading ? (
           <Skeleton variant='rect' height={400} animation='wave' />
         ) : (
-          <CardLInk linked={linked} itemId={item.id}>
-            <img src={item.mediaUrl} alt={item.title} />
-          </CardLInk>
+          <>
+            {item.mediaType === 'yt-video' ? (
+              <VideoWrapper>
+                <YouTube videoId={item.mediaUrl} opts={ytOpts} />
+              </VideoWrapper>
+            ) : (
+              <CardLInk linked={linked} itemId={item.id}>
+                <img src={item.mediaUrl} alt={item.title} />
+              </CardLInk>
+            )}
+          </>
         )}
         <div>
           <TypographyTitle variant='h5' component='h2'>
@@ -240,6 +257,20 @@ const FacebookActions = styled.div`
   position: relative;
   margin-top: 12px;
   margin-bottom: -10px;
+`;
+
+const VideoWrapper = styled.div`
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
 `;
 
 export default CardItem;
