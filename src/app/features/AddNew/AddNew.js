@@ -92,6 +92,10 @@ const AddNew = () => {
   const formElementsArray = convertToArray(controls);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [isSuccess]);
+
+  useEffect(() => {
     dispatch(clearMessage());
   }, [dispatch]);
 
@@ -178,7 +182,6 @@ const AddNew = () => {
     if (formElementsArray.every(checkFormValid)) {
       dispatch(clearMessage());
       setLoading(true);
-      window.scrollTo(0, 0);
 
       ItemService.createItem(
         controls.itemMedia.value,
