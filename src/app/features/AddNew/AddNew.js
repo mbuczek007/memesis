@@ -15,14 +15,13 @@ import styled from 'styled-components';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import MediaSource from './MediaSource';
-import getVideoId from 'get-video-id';
+import { checkExternalImage, checkYtVideo } from '../../utils/utils';
 
 const AddNew = () => {
   const initialControls = {
     itemMedia: {
       validation: {
         required: true,
-        url: true,
       },
       value: '',
       valid: false,
@@ -100,12 +99,6 @@ const AddNew = () => {
     return controls[element.id].valid;
   };
 
-  const getVideoIdFromUrl = (value) => {
-    const video = getVideoId(value);
-
-    return video.id;
-  };
-
   const handleChangeType = (type) => {
     setAdditionalSettings({
       ...additionalSettings,
@@ -129,47 +122,20 @@ const AddNew = () => {
       itemMedia: {
         ...controls.itemMedia,
         value: value,
-        touched: true,
+        valid: false,
+        touched: false,
       },
     });
 
     if (additionalSettings.mediaType === 'url') {
-      let img = new Image();
-      img.src = value;
-
-      img.onload = () => {
-        setControls((prevState) => ({
-          ...prevState,
-          itemMedia: {
-            ...prevState.itemMedia,
-            value: value,
-            valid: true,
-          },
-        }));
-      };
-
-      img.onerror = () => {
-        setControls((prevState) => ({
-          ...prevState,
-          itemMedia: {
-            ...prevState.itemMedia,
-            valid: false,
-          },
-        }));
-      };
-    } else if (additionalSettings.mediaType === 'yt-video') {
-      let img = new Image();
-      img.src =
-        'http://img.youtube.com/vi/' +
-        getVideoIdFromUrl(value) +
-        '/mqdefault.jpg';
-      img.onload = () => {
-        if (img.width === 120) {
+      checkExternalImage(value, (exists) => {
+        if (exists) {
           setControls((prevState) => ({
             ...prevState,
             itemMedia: {
               ...prevState.itemMedia,
-              valid: false,
+              valid: true,
+              touched: true,
             },
           }));
         } else {
@@ -177,13 +143,32 @@ const AddNew = () => {
             ...prevState,
             itemMedia: {
               ...prevState.itemMedia,
-              value: value,
-              valid: true,
               touched: true,
             },
           }));
         }
-      };
+      });
+    } else if (additionalSettings.mediaType === 'yt-video') {
+      checkYtVideo(value, (exists) => {
+        if (exists) {
+          setControls((prevState) => ({
+            ...prevState,
+            itemMedia: {
+              ...prevState.itemMedia,
+              valid: true,
+              touched: true,
+            },
+          }));
+        } else {
+          setControls((prevState) => ({
+            ...prevState,
+            itemMedia: {
+              ...prevState.itemMedia,
+              touched: true,
+            },
+          }));
+        }
+      });
     }
   };
 
@@ -193,6 +178,7 @@ const AddNew = () => {
     if (formElementsArray.every(checkFormValid)) {
       dispatch(clearMessage());
       setLoading(true);
+      window.scrollTo(0, 0);
 
       ItemService.createItem(
         controls.itemMedia.value,
@@ -290,7 +276,7 @@ const AddNew = () => {
             variant='h5'
             color='inherit'
           >
-            Dodaj Motywator
+            Dodaj nowy
           </Typography>
           <form onSubmit={submitHandler}>
             <Grid container spacing={3}>

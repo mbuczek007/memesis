@@ -6,7 +6,7 @@ import { DebounceInput } from 'react-debounce-input';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import YouTube from 'react-youtube';
-import getVideoId from 'get-video-id';
+import { getVideoIdFromUrl } from '../../utils/utils';
 
 const TabPanel = ({ children, activeTab, value }) => {
   return (
@@ -57,12 +57,6 @@ const MediaSource = ({ formElement, changeType, changeMediaValue }) => {
 
   const handleChangeMediaValue = (e, type) => {
     changeMediaValue(type === 'file' ? e.target.files[0].name : e.target.value);
-  };
-
-  const getVideoIdFromUrl = (value) => {
-    const video = getVideoId(value);
-
-    return video.id;
   };
 
   return (

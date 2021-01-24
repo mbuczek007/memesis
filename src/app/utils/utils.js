@@ -1,3 +1,5 @@
+import getVideoId from 'get-video-id';
+
 export const checkValidity = (value, rules) => {
   let isValid = true;
 
@@ -64,4 +66,41 @@ export const convertToArray = (array) => {
   }
 
   return formElementsArray;
+};
+
+export const getVideoIdFromUrl = (value) => {
+  const video = getVideoId(value);
+
+  return video.id;
+};
+
+export const checkExternalImage = (imageSrc, callback) => {
+  let img = new Image();
+
+  img.onload = function () {
+    callback(true);
+  };
+
+  img.onerror = function () {
+    callback(false);
+  };
+
+  img.src = imageSrc;
+};
+
+export const checkYtVideo = (videoSrc, callback) => {
+  let img = new Image();
+
+  img.onload = function () {
+    if (img.width === 120) {
+      callback(false);
+    } else {
+      callback(true);
+    }
+  };
+
+  img.src =
+    'https://img.youtube.com/vi/' +
+    getVideoIdFromUrl(videoSrc) +
+    '/mqdefault.jpg';
 };

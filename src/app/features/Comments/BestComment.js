@@ -12,13 +12,19 @@ const BestComment = ({ comments, commentsReloading }) => {
     )[0];
   };
 
+  const bestComment = pullBestComment();
+
+  if (bestComment.votesCount < 5) {
+    return null;
+  }
+
   return (
     <BestCommentWrapper>
       <Typography variant='h6' gutterBottom component='h4'>
         Najlepszy Komentarz
       </Typography>
       <Comment
-        comment={pullBestComment()}
+        comment={bestComment}
         commentsReloading={commentsReloading}
         path={[...[], 999999]}
       />
