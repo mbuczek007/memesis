@@ -8,17 +8,14 @@ import TextField from '@material-ui/core/TextField';
 import Alert from '@material-ui/lab/Alert';
 import { DebounceInput } from 'react-debounce-input';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  inputChangeHandler,
-  inputValueResetHandler,
-  convertToArray,
-} from '../../utils/utils';
+import { inputChangeHandler, convertToArray } from '../../utils/utils';
 import ItemService from '../../../services/item.service';
 import { clearMessage, setMessage } from '../../../store/reducers/messageSlice';
 import styled from 'styled-components';
 import Switch from '@material-ui/core/Switch';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import MediaSource from './MediaSource';
+import getVideoId from 'get-video-id';
 
 const AddNew = () => {
   const initialControls = {
@@ -103,27 +100,91 @@ const AddNew = () => {
     return controls[element.id].valid;
   };
 
+  const getVideoIdFromUrl = (value) => {
+    const video = getVideoId(value);
+
+    return video.id;
+  };
+
   const handleChangeType = (type) => {
     setAdditionalSettings({
       ...additionalSettings,
       mediaType: type,
     });
 
-    inputValueResetHandler('', 'itemMedia', controls, setControls);
-  };
-
-  const handleChangeMediaValue = (value) => {
-    inputChangeHandler(value, 'itemMedia', controls, setControls);
-  };
-
-  const handleChangeValidSource = (value) => {
     setControls({
       ...controls,
       itemMedia: {
         ...controls.itemMedia,
-        valid: value,
+        value: '',
+        touched: false,
+        valid: false,
       },
     });
+  };
+
+  const handleChangeMediaValue = (value) => {
+    setControls({
+      ...controls,
+      itemMedia: {
+        ...controls.itemMedia,
+        value: value,
+        touched: true,
+      },
+    });
+
+    if (additionalSettings.mediaType === 'url') {
+      let img = new Image();
+      img.src = value;
+
+      img.onload = () => {
+        setControls((prevState) => ({
+          ...prevState,
+          itemMedia: {
+            ...prevState.itemMedia,
+            value: value,
+            valid: true,
+          },
+        }));
+      };
+
+      img.onerror = () => {
+        setControls((prevState) => ({
+          ...prevState,
+          itemMedia: {
+            ...prevState.itemMedia,
+            valid: false,
+          },
+        }));
+      };
+    } else if (additionalSettings.mediaType === 'yt-video') {
+      let img = new Image();
+      img.src =
+        'http://img.youtube.com/vi/' +
+        getVideoIdFromUrl(value) +
+        '/mqdefault.jpg';
+      img.onload = () => {
+        if (img.width === 120) {
+          setControls((prevState) => ({
+            ...prevState,
+            itemMedia: {
+              ...prevState.itemMedia,
+              valid: false,
+            },
+          }));
+        } else {
+          setControls((prevState) => ({
+            ...prevState,
+            itemMedia: {
+              ...prevState.itemMedia,
+              value: value,
+              valid: true,
+              touched: true,
+            },
+          }));
+        }
+      };
+    }
   };
 
   const submitHandler = (e) => {
@@ -167,7 +228,6 @@ const AddNew = () => {
             formElement={formElement}
             changeMediaValue={handleChangeMediaValue}
             changeType={handleChangeType}
-            changeValidSource={handleChangeValidSource}
           />
         ) : (
           <DebounceInput

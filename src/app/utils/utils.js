@@ -35,24 +35,6 @@ export const checkValidity = (value, rules) => {
   return isValid;
 };
 
-export const inputValueResetHandler = (
-  value,
-  controlName,
-  controls,
-  setControlsFn
-) => {
-  const updatedControls = {
-    ...controls,
-    [controlName]: {
-      ...controls[controlName],
-      value: value,
-      touched: false,
-      valid: false,
-    },
-  };
-  setControlsFn(updatedControls);
-};
-
 export const inputChangeHandler = (
   value,
   controlName,

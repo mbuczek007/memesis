@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { DebounceInput } from 'react-debounce-input';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import getVideoId from 'get-video-id';
 import YouTube from 'react-youtube';
+import getVideoId from 'get-video-id';
 
 const TabPanel = ({ children, activeTab, value }) => {
   return (
@@ -22,14 +21,8 @@ const TabPanel = ({ children, activeTab, value }) => {
   );
 };
 
-const MediaSource = ({
-  formElement,
-  changeType,
-  changeMediaValue,
-  changeValidSource,
-}) => {
+const MediaSource = ({ formElement, changeType, changeMediaValue }) => {
   const [activeTab, setActiveTab] = useState('file');
-  const [mediaValidationLoading, setMediaValidationLoading] = useState(false);
 
   const tabs = [
     {
@@ -48,51 +41,6 @@ const MediaSource = ({
       label: 'Video z Youtube',
     },
   ];
-
-  useEffect(() => {
-    const checkImage = (imageSrc) => {
-      setMediaValidationLoading(true);
-
-      let img = new Image();
-      img.src = imageSrc;
-
-      img.onload = () => {
-        changeValidSource(true);
-        setMediaValidationLoading(false);
-      };
-      img.onerror = () => {
-        changeValidSource(false);
-        setMediaValidationLoading(false);
-      };
-    };
-
-    const checkYtVideo = (videoSrc) => {
-      setMediaValidationLoading(true);
-
-      let img = new Image();
-      img.src =
-        'http://img.youtube.com/vi/' +
-        getVideoIdFromUrl(videoSrc) +
-        '/mqdefault.jpg';
-      img.onload = () => {
-        if (img.width === 120) {
-          changeValidSource(false);
-          setMediaValidationLoading(false);
-        } else {
-          changeValidSource(true);
-          setMediaValidationLoading(false);
-        }
-      };
-    };
-
-    if (formElement.config.value) {
-      if (activeTab === 'url') {
-        checkImage(formElement.config.value);
-      } else if (activeTab === 'yt-video') {
-        checkYtVideo(formElement.config.value);
-      }
-    }
-  }, [formElement.config.value, activeTab]);
 
   const additionalProps = (type) => {
     return {
@@ -150,14 +98,10 @@ const MediaSource = ({
             href={formElement.config.value}
             target='_blank'
           >
-            <img src={formElement.config.value} />
+            <img src={formElement.config.value} alt='' />
           </ImagePlaceholderWrapper>
         )}
         <InputWrapper>
-          {mediaValidationLoading && (
-            <StyledCircularProgress color='secondary' size={20} />
-          )}
-
           <DebounceInput
             autoFocus
             debounceTimeout={500}
@@ -189,9 +133,6 @@ const MediaSource = ({
           </VideoPlaceholderWrapper>
         )}
         <InputWrapper>
-          {mediaValidationLoading && (
-            <StyledCircularProgress color='secondary' size={20} />
-          )}
           <DebounceInput
             autoFocus
             debounceTimeout={500}
@@ -257,12 +198,6 @@ const VideoPlaceholderWrapper = styled.div`
     width: 100%;
     height: 100%;
   }
-`;
-
-const StyledCircularProgress = styled(CircularProgress)`
-  position: absolute;
-  right: 12px;
-  top: 16px;
 `;
 
 export default MediaSource;
