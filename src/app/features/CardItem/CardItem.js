@@ -47,7 +47,14 @@ const CardItem = ({ item, linked, loading }) => {
               </VideoWrapper>
             ) : (
               <CardLInk linked={linked} itemId={item.id}>
-                <img src={item.mediaUrl} alt={item.title} />
+                <img
+                  src={
+                    item.mediaType === 'file'
+                      ? 'http://localhost:8000/uploads/items/' + item.mediaUrl
+                      : item.mediaUrl
+                  }
+                  alt={item.title}
+                />
               </CardLInk>
             )}
           </>

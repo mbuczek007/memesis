@@ -11,22 +11,19 @@ const createItem = (
   itemUserId,
   authToken
 ) => {
+  const formData = new FormData();
+  formData.append('title', itemTitle);
+  formData.append('subtitle', itemSubtitle);
+  formData.append('source', itemSource);
+  formData.append('mediaUrl', itemMedia);
+  formData.append('mediaType', itemMediaType);
+  formData.append('disableComments', disableComments);
+  formData.append('userId', itemUserId);
+
   return axios
-    .post(
-      API_URL + 'item',
-      {
-        title: itemTitle,
-        subtitle: itemSubtitle,
-        source: itemSource,
-        mediaUrl: itemMedia,
-        mediaType: itemMediaType,
-        disableComments,
-        userId: itemUserId,
-      },
-      {
-        headers: { Authorization: `Bearer ${authToken}` },
-      }
-    )
+    .post(API_URL + 'item', formData, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    })
     .then((response) => {
       return response.data;
     });

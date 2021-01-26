@@ -126,8 +126,8 @@ const AddNew = () => {
       itemMedia: {
         ...controls.itemMedia,
         value: value,
-        valid: false,
-        touched: false,
+        valid: additionalSettings.mediaType === 'file',
+        touched: additionalSettings.mediaType === 'file',
       },
     });
 
@@ -281,7 +281,7 @@ const AddNew = () => {
           >
             Dodaj nowy
           </Typography>
-          <form onSubmit={submitHandler}>
+          <form onSubmit={submitHandler} encType='multipart/form-data'>
             <Grid container spacing={3}>
               {form}
               <Grid item xs={12} sm={12}>

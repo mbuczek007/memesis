@@ -7,6 +7,9 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import YouTube from 'react-youtube';
 import { getVideoIdFromUrl } from '../../utils/utils';
+import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 const TabPanel = ({ children, activeTab, value }) => {
   return (
@@ -23,6 +26,7 @@ const TabPanel = ({ children, activeTab, value }) => {
 
 const MediaSource = ({ formElement, changeType, changeMediaValue }) => {
   const [activeTab, setActiveTab] = useState('file');
+  const [selectedImagePreview, setSelectedImagePreview] = useState([]);
 
   const tabs = [
     {
@@ -51,12 +55,27 @@ const MediaSource = ({ formElement, changeType, changeMediaValue }) => {
   };
 
   const handleChangeType = (event, newValue) => {
-    setActiveTab(newValue);
-    changeType(newValue);
+    if (activeTab !== newValue) {
+      setActiveTab(newValue);
+      changeType(newValue);
+    }
   };
 
-  const handleChangeMediaValue = (e, type) => {
-    changeMediaValue(type === 'file' ? e.target.files[0].name : e.target.value);
+  const handleChangeMediaValue = (e) => {
+    changeMediaValue(e.target.value);
+  };
+
+  const handleChangeUploadImage = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    changeMediaValue(file);
+
+    reader.onloadend = () => {
+      setSelectedImagePreview(reader.result);
+    };
+
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -72,22 +91,42 @@ const MediaSource = ({ formElement, changeType, changeMediaValue }) => {
         ))}
       </StyledTabs>
       <TabPanel value='file' activeTab={activeTab}>
-        <HiddenInput
-          id='contained-button-file'
-          type='file'
-          accept='.png, .jpg, .jpeg'
-          onChange={(e, type) => {
-            handleChangeMediaValue(e, type);
-          }}
-        />
-        <label htmlFor='contained-button-file'>
-          <Button variant='contained' color='primary' component='span'>
-            Wybierz plik
-          </Button>
-        </label>
+        {formElement.config.value && selectedImagePreview.length ? (
+          <ImagePlaceholderWrapper href='#'>
+            <span>
+              <img src={selectedImagePreview} alt='' />
+              <IconButton
+                aria-label='delete'
+                onClick={() => {
+                  changeMediaValue('');
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </span>
+          </ImagePlaceholderWrapper>
+        ) : (
+          <>
+            <HiddenInput
+              id='contained-button-file'
+              type='file'
+              name='mediaUrl'
+              accept='.png, .jpg, .jpeg'
+              onChange={handleChangeUploadImage}
+            />
+            <label htmlFor='contained-button-file'>
+              <Button variant='contained' color='primary' component='span'>
+                Wybierz plik
+              </Button>
+            </label>
+            <InfoText variant='caption' display='block'>
+              Plik w formacie: png, jpg, jpeg. Maksymalna wielkość pliku: 1Mb
+            </InfoText>
+          </>
+        )}
       </TabPanel>
       <TabPanel value='url' activeTab={activeTab}>
-        {formElement.config.valid && (
+        {formElement.config.valid && activeTab !== 'file' && (
           <ImagePlaceholderWrapper
             href={formElement.config.value}
             target='_blank'
@@ -121,7 +160,7 @@ const MediaSource = ({ formElement, changeType, changeMediaValue }) => {
         </InputWrapper>
       </TabPanel>
       <TabPanel value='yt-video' activeTab={activeTab}>
-        {formElement.config.valid && (
+        {formElement.config.valid && activeTab !== 'file' && (
           <VideoPlaceholderWrapper>
             <YouTube videoId={getVideoIdFromUrl(formElement.config.value)} />
           </VideoPlaceholderWrapper>
@@ -172,6 +211,17 @@ const ImagePlaceholderWrapper = styled.a`
   margin: 20px auto;
   text-align: center;
 
+  span {
+    display: inline-block;
+    position: relative;
+  }
+
+  button {
+    position: absolute;
+    top: -11px;
+    right: -50px;
+  }
+
   img {
     max-width: 200px;
     vertical-align: middle;
@@ -192,6 +242,10 @@ const VideoPlaceholderWrapper = styled.div`
     width: 100%;
     height: 100%;
   }
+`;
+
+const InfoText = styled(Typography)`
+  margin-top: 10px;
 `;
 
 export default MediaSource;
