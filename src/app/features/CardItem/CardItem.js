@@ -115,7 +115,8 @@ const CardItem = ({ item, linked, loading }) => {
           <DateInfoWrapper>
             <ScheduleIcon fontSize='small' />
             {moment(item.createdAt).fromNow()}
-            <span> przez:</span> {item.userName} |
+            <span> przez:</span>{' '}
+            {item.userName ? item.userName : 'Konto usunięte'} |
             {item.disableComments ? (
               <DisabledCommentIcon fontSize='small' />
             ) : (
