@@ -4,12 +4,11 @@ import TextField from '@material-ui/core/TextField';
 import Alert from '@material-ui/lab/Alert';
 import { useDispatch, useSelector } from 'react-redux';
 import ButtonLoading from '../../shared/ButtonLoading/ButtonLoading';
-import { login, facebooklogin } from '../../../store/reducers/authSlice';
+import { login } from '../../../store/reducers/authSlice';
 import styled from 'styled-components';
-import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
-import FacebookIcon from '@material-ui/icons/Facebook';
 import PasswordInput from '../../shared/PasswordInput/PasswordInput';
 import Typography from '@material-ui/core/Typography';
+import FacebookLoginButton from './FacebookLoginButton';
 
 const initialLoginData = {
   loginOrEmail: '',
@@ -34,15 +33,8 @@ const LoginPanel = () => {
     });
   };
 
-  const handleClickFacebookLogin = () => {
-    setLoading(true);
-    setLoginData(initialLoginData);
-  };
-
-  const responseFacebook = (response) => {
-    dispatch(facebooklogin(response.accessToken, response.userID)).catch(() => {
-      setLoading(false);
-    });
+  const handleFacebookLoading = (value) => {
+    setLoading(value);
   };
 
   return (
@@ -85,42 +77,13 @@ const LoginPanel = () => {
         />
         <ButtonLoading loading={loading} ctaText='Zaloguj' />
       </form>
-      <FacebookLogin
-        appId='358432648571666'
-        autoLoad={false}
-        onClick={handleClickFacebookLogin}
-        isDisabled={loading}
-        callback={responseFacebook}
-        render={(renderProps) => (
-          <StyledFacebookLoginButton
-            size='large'
-            fullWidth
-            variant='contained'
-            startIcon={<FacebookIcon />}
-            onClick={renderProps.onClick}
-            disabled={loading}
-          >
-            Zaloguj się przez facebooka
-          </StyledFacebookLoginButton>
-        )}
+      <FacebookLoginButton
+        isLoadingCallback={handleFacebookLoading}
+        buttonText='Zaloguj się przez facebooka'
       />
     </>
   );
 };
-
-const StyledFacebookLoginButton = styled(Button)`
-  width: 100%;
-  color: #fff;
-
-  &,
-  &:hover {
-    background-color: #3b5998;
-  }
-
-  &:hover {
-    opacity: 0.9;
-  }
-`;
 
 const StyledAlert = styled(Alert)`
   margin-bottom: 10px;

@@ -7,7 +7,7 @@ import Box from '@material-ui/core/Box';
 import { useDispatch } from 'react-redux';
 import { clearMessage } from '../../../store/reducers/messageSlice';
 
-const UserLoginSignUp = () => {
+const UserLoginSignUp = ({ registerMode }) => {
   const dispatch = useDispatch();
   const [signUpView, setSignUpView] = useState(false);
 
@@ -20,22 +20,24 @@ const UserLoginSignUp = () => {
   return (
     <StyledBox p={2}>
       <>
-        {signUpView ? <SignUpPanel /> : <LoginPanel />}
-        <StyledLink
-          href='#'
-          variant='body2'
-          onClick={(e) => handleChangeView(e)}
-        >
-          {signUpView ? (
-            <>
-              Posiadasz konto? <strong>Zaloguj się</strong>
-            </>
-          ) : (
-            <>
-              Nie masz konta? <strong>Zarejestruj się</strong>
-            </>
-          )}
-        </StyledLink>
+        {signUpView || registerMode ? <SignUpPanel /> : <LoginPanel />}
+        {!registerMode && (
+          <StyledLink
+            href='#'
+            variant='body2'
+            onClick={(e) => handleChangeView(e)}
+          >
+            {signUpView ? (
+              <>
+                Posiadasz konto? <strong>Zaloguj się</strong>
+              </>
+            ) : (
+              <>
+                Nie masz konta? <strong>Zarejestruj się</strong>
+              </>
+            )}
+          </StyledLink>
+        )}
       </>
     </StyledBox>
   );

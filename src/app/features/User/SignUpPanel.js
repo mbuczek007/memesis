@@ -12,6 +12,7 @@ import AuthService from '../../../services/auth.service';
 import { checkValidity, convertToArray } from '../../utils/utils';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import InputAdornment from '@material-ui/core/InputAdornment';
+import FacebookLoginButton from './FacebookLoginButton';
 
 const SignUpPanel = () => {
   const initialSignUpData = {
@@ -116,6 +117,10 @@ const SignUpPanel = () => {
         });
       }
     );
+  };
+
+  const handleFacebookLoading = (value) => {
+    setLoading(value);
   };
 
   return (
@@ -227,6 +232,10 @@ const SignUpPanel = () => {
           ctaText='Zarejestruj'
         />
       </form>
+      <FacebookLoginButton
+        isLoadingCallback={handleFacebookLoading}
+        buttonText='Zarejestruj się przez facebooka'
+      />
     </>
   );
 };

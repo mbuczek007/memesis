@@ -8,6 +8,7 @@ import Popover from '@material-ui/core/Popover';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { useDispatch, useSelector } from 'react-redux';
 import UserLoginSignUp from '../User/UserLoginSignUp';
+import styled from 'styled-components';
 
 const UserHeaderPanel = () => {
   const dispatch = useDispatch();
@@ -48,44 +49,78 @@ const UserHeaderPanel = () => {
               horizontal: 'center',
             }}
           >
-            <MenuItem>Moje motywatory</MenuItem>
             <MenuItem>Profil</MenuItem>
             <MenuItem onClick={handleLogOut}>Wyloguj</MenuItem>
           </Menu>
         </div>
       ) : (
-        <PopupState variant='popover' popupId='user-popup-popover'>
-          {(popupState) => (
-            <>
-              <Button
-                variant='contained'
-                color='primary'
-                {...bindTrigger(popupState)}
-              >
-                Zaloguj
-              </Button>
-              <Popover
-                onExited={() => {
-                  dispatch(clearMessage());
-                }}
-                {...bindPopover(popupState)}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'center',
-                }}
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'center',
-                }}
-              >
-                <UserLoginSignUp />
-              </Popover>
-            </>
-          )}
-        </PopupState>
+        <>
+          <PopupState variant='popover' popupId='user-popup-login'>
+            {(popupState) => (
+              <>
+                <AuthButtonButton
+                  variant='contained'
+                  color='primary'
+                  {...bindTrigger(popupState)}
+                >
+                  Zaloguj
+                </AuthButtonButton>
+                <Popover
+                  onExited={() => {
+                    dispatch(clearMessage());
+                  }}
+                  {...bindPopover(popupState)}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                  }}
+                >
+                  <UserLoginSignUp />
+                </Popover>
+              </>
+            )}
+          </PopupState>
+          <PopupState variant='popover' popupId='user-popup-sign-up'>
+            {(popupState) => (
+              <>
+                <AuthButtonButton
+                  variant='contained'
+                  color='secondary'
+                  {...bindTrigger(popupState)}
+                >
+                  Rejestracja
+                </AuthButtonButton>
+                <Popover
+                  onExited={() => {
+                    dispatch(clearMessage());
+                  }}
+                  {...bindPopover(popupState)}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                  }}
+                >
+                  <UserLoginSignUp registerMode />
+                </Popover>
+              </>
+            )}
+          </PopupState>
+        </>
       )}
     </>
   );
 };
+
+const AuthButtonButton = styled(Button)`
+  margin-left: 15px;
+`;
 
 export default UserHeaderPanel;
